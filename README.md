@@ -1,1 +1,1 @@
-Hello!
+My NixOS development environment
