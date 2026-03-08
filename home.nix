@@ -1,3 +1,12 @@
+# Wallpaper
+# https://github.com/basecamp/omarchy/blob/master/themes/everforest/backgrounds/1-tree-tops.jpg
+
+# blur wallpaper command
+# magick input.jpg -gaussian-blur 0x8 output.jpg
+
+# and copy
+# sudo cp ~/Desktop/wallpaper.jpg /etc/nixos/
+
 {
   config,
   lib,
@@ -8,49 +17,32 @@
 
 {
   imports = [
-    #inputs.dms.homeModules.dank-material-shell
     inputs.walker.homeManagerModules.default
   ];
 
-  home.username = "sam";
-  home.homeDirectory = "/home/sam";
+  home.username = "name";
+  home.homeDirectory = "/home/name";
   home.stateVersion = "26.05";
+
+  # Cursor theme
+  home.pointerCursor = {
+    name = "Yaru";
+    package = pkgs.yaru-theme;
+    size = 24;
+    gtk.enable = true;
+    x11.enable = true;
+  };
 
   # Launcher
   programs.walker = {
     enable = true;
     runAsService = true;
-
     config = {
       theme = "default";
     };
   };
 
-  # Dank Linux
-  #xdg.configFile."DankMaterialShell/settings.json".force = true;
-  #xdg.stateFile."DankMaterialShell/session.json".force = true;
-  #programs.dank-material-shell = {
-  #  enable = true;
-
-  # systemd = {
-  #   enable = true;
-  #   restartIfChanged = true;   # Auto-restart dms.service when dms-shell changes
-  # };
-
-  # settings = {
-  #   theme = "dark";
-  #   enableVPN = true;
-  #   dynamicTheming = true;
-  #   enableCalendarEvents = false;
-  #   showLauncherButton = false;
-  #   showCpuTemp = true;
-  # };
-
-  #session = {
-  #  isLightMode = false;
-  #};
-  #};
-
+  # Shell
   programs.zsh = {
     enable = true;
     enableCompletion = true;
@@ -58,22 +50,24 @@
     syntaxHighlighting.enable = true;
   };
 
+  # Git
   programs.git = {
     enable = true;
     settings = {
       user = {
-        name = "Sam";
-        email = "sam@gmail.com";
+        name = "name";
+        email = "name@gmail.com";
       };
       init.defaultBranch = "main";
     };
   };
 
+  # Terminal
   programs.ghostty = {
     enable = true;
     settings = {
-      theme = "TokyoNight";
-      background-opacity = 0.9;
+      theme = "Everforest Dark Hard";
+      background-opacity = 0.95;
       background-blur = true;
       window-padding-x = 8;
       window-padding-y = 8;
@@ -87,23 +81,22 @@
   };
 
   # or Alacritty
-  #xdg.configFile."alacritty/alacritty.toml".force = true;
   #programs.alacritty = {
   #  enable = true;
   #  settings = {
   #    window = {
   #      decorations = "none";
-  #	opacity = 0.8;
-  #     padding = {
-  #        x = 8;
-  #        y = 8;
+  #	     opacity = 0.8;
+  #        padding = {
+  #          x = 8;
+  #          y = 8;
+  #        };
   #      };
-  #    };
-  #    font = {
-  #      normal = {
-  #        family = "JetBrainsMono Nerd Font";
-  #        style = "Regular";
-  #      };
+  #      font = {
+  #        normal = {
+  #          family = "JetBrainsMono Nerd Font";
+  #          style = "Regular";
+  #        };
   #      size = 12.0;
   #    };
   #  };
@@ -114,6 +107,7 @@
     enableZshIntegration = true;
     settings = {
       add_newline = true;
+      scan_timeout = 100;
     };
   };
 
@@ -132,7 +126,13 @@
       {
         name = "nix";
         auto-format = true;
-        formatter.command = lib.getExe pkgs.nixfmt-rfc-style;
+        formatter.command = lib.getExe pkgs.nixfmt;
+      }
+      {
+        name = "rust";
+        auto-format = true;
+        formatter.command = lib.getExe pkgs.rustfmt;
+        language-servers = [ "rust-analyzer" ];
       }
     ];
     themes = {
@@ -164,16 +164,48 @@
     ];
   };
 
+  # Code Editor
   programs.zed-editor.enable = true;
-  programs.google-chrome.enable = true;
 
-  # disable icon for Launcher
-  #xdg.desktopEntries = {
-  #  btop = {
-  #    name = "btop";
-  #    noDisplay = true;
-  #  };
-  #};
+  # Web Apps
+  programs.google-chrome.enable = true;
+  # Youtube
+  xdg.desktopEntries.youtube = {
+    name = "YouTube";
+    exec = "google-chrome --app=https://www.youtube.com";
+    icon = "/etc/nixos/icons/youtube.png";
+    type = "Application";
+    categories = [ "Network" ];
+  };
+
+  # ChatGPT
+  xdg.desktopEntries.chatgpt = {
+    name = "ChatGPT";
+    exec = "google-chrome --app=https://chatgpt.com";
+    icon = "/etc/nixos/icons/chatgpt.png";
+    type = "Application";
+    categories = [ "Utility" ];
+  };
+
+  # X
+  xdg.desktopEntries.x = {
+    name = "X";
+    exec = "google-chrome --app=https://x.com";
+    icon = "/etc/nixos/icons/x.png";
+    type = "Application";
+    categories = [ "Network" ];
+  };
+
+  # Bluesky
+  xdg.desktopEntries.bluesky = {
+    name = "Bluesky";
+    exec = "google-chrome --app=https://bsky.app";
+    icon = "/etc/nixos/icons/bluesky.png";
+    type = "Application";
+    categories = [ "Network" ];
+  };
+
+  # Hide icon
   xdg = {
     enable = true;
 
@@ -182,65 +214,43 @@
         name = "btop";
         noDisplay = true;
       };
-
-      fcitx5 = {
-        name = "fcitx5";
-        noDisplay = true;
-        comment = "Input method framework";
-        exec = "fcitx5";
-        terminal = false;
-        type = "Application";
-      };
-
-      ikhal = {
-        name = "ikhal";
-        noDisplay = true;
-      };
     };
   };
 
   # icon theme
-  #dconf.settings = {
-  #  "org/gnome/desktop/interface" = {
-  #    icon-theme = "Yaru";
-  #    gtk-theme = "Yaru";
-  #  };
-  #};
-
   gtk = {
     enable = true;
-
     theme = {
       name = "Yaru-blue";
       package = pkgs.yaru-theme;
     };
-
     iconTheme = {
       name = "Yaru-blue";
       package = pkgs.yaru-theme;
     };
   };
 
-  #  xdg.configFile."gtk-4.0/gtk.css" = {
-  #  source = pkgs.yaru-theme + "/share/themes/Yaru-blue/gtk-4.0/gtk.css";
-  #  force = true;
-  #};
-
+  # WM config (niri)
   xdg.configFile."niri/config.kdl" = {
     force = true;
     text = ''
       spawn-at-startup "awww-daemon"
-      spawn-at-startup "awww" "img" "/home/sam/Pictures/01-Purple_DM-4K.png" "--transition-type" "none"
+      spawn-at-startup "awww" "img" "/etc/nixos/wallpaper.jpg" "--transition-type" "none"
       spawn-at-startup "awww-daemon" "-n" "overlay"
-      spawn-at-startup "awww" "img" "-n" "overlay" "/home/sam/Pictures/blur-Purple_DM-4K.png"
+      spawn-at-startup "awww" "img" "-n" "overlay" "/etc/nixos/blur-wallpaper.jpg" "--transition-type" "none"
       spawn-at-startup "eww" "daemon"
-      spawn-at-startup "eww" "open-many" "bar" "cpu-window" "mem-window" "launcher-window" "workspaces-window" "date-window" "volume-window" "net-window" "cputemp-window"
+      spawn-at-startup "/home/sam/.local/bin/eww-start"
 
       prefer-no-csd
 
       // Make workspaces four times smaller than normal in the overview.
       overview {
         zoom 0.6
+      }
+
+      cursor {
+        xcursor-theme "Yaru"
+        xcursor-size 24
       }
 
       input {
@@ -263,260 +273,267 @@
         focus-follows-mouse max-scroll-amount="0%"
       }
 
-      output "eDP-1" {
-        mode "1920x1080@120.030"
-        scale 2
-        transform "normal"
-        position x=1280 y=1
-      }
-
-      layout {
-        gaps 8
-        center-focused-column "never"
-
-        preset-column-widths {
-          proportion 0.33333
-          proportion 0.5
-          proportion 0.66667
+        output "eDP-1" {
+          mode "1920x1080@120.030"
+          scale 2
+          transform "normal"
+          position x=1280 y=1
         }
 
-        default-column-width { proportion 0.5; }
+        layout {
+          gaps 8
+          center-focused-column "never"
 
-        focus-ring {
-          width 1
-          active-color "#f0f0f0"
-          inactive-color "#f0f0f0"
+          preset-column-widths {
+            proportion 0.33333
+            proportion 0.5
+            proportion 0.66667
+          }
+
+          default-column-width { proportion 0.5; }
+
+          focus-ring {
+            width 1
+            active-color "#00000096"
+            inactive-color "#00000096"
+          }
+
+          border {
+            // off
+            width 2
+            active-color "#83c092CC"
+            inactive-color "#475258CC"
+            urgent-color "#9b000096"
+          }
+
+          shadow {
+            softness 30
+            spread 5
+            offset x=0 y=5
+            color "#0007"
+          }
+
+          // Custom
+          struts {
+            top 28
+          }
+
+          tab-indicator {
+            on
+            corner-radius 5
+          }
+
+          background-color "transparent" // to show wallpaper when overview
         }
 
-        border {
-          off
-          width 4
-          active-color "#ffc87f"
-          inactive-color "#505050"
-          urgent-color "#9b0000"
+        hotkey-overlay {
         }
 
-        shadow {
-          softness 30
-          spread 5
-          offset x=0 y=5
-          color "#0007"
+        screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
+
+        animations {
         }
 
-        // Custom
-        struts {
-          top 30
+        // Open the Firefox picture-in-picture player as floating by default.
+        window-rule {
+          match app-id=r#"firefox$"# title="^Picture-in-Picture$"
+          open-floating true
         }
 
-        tab-indicator {
-          on
-          corner-radius 5
+        window-rule {
+          match app-id=r#"^org\.keepassxc\.KeePassXC$"#
+          match app-id=r#"^org\.gnome\.World\.Secrets$"#
+
+          block-out-from "screen-capture"
         }
 
-        background-color "transparent" // to show wallpaper when overview
-      }
+        window-rule {
+          geometry-corner-radius 10
+          clip-to-geometry true
+          draw-border-with-background false // Remove window background color
+        }
 
-      hotkey-overlay {
-      }
+        layer-rule {
+          match namespace="^awww-daemonoverlay$"
+          place-within-backdrop true
+        }
 
-      screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
+        binds {
+          Mod+B hotkey-overlay-title="Open a Browser: firefox" { spawn "firefox"; }
+          Mod+N hotkey-overlay-title="Open a File Explorer" { spawn "nautilus"; }
 
-      animations {
-      }
+          Mod+Shift+Slash { show-hotkey-overlay; }
 
-      // window-rule {
-      //   match app-id=r#"^org\.wezfurlong\.wezterm$"#
-      //   default-column-width {}
-      // }
+          Mod+T hotkey-overlay-title="Open a Terminal: ghostty" { spawn "ghostty"; }
+          Mod+Space hotkey-overlay-title="Run an Application: walker" { spawn "walker"; }
+          Mod+Alt+L hotkey-overlay-title="Lock the Screen: hyprlock" { spawn "hyprlock"; }
 
-      // Open the Firefox picture-in-picture player as floating by default.
-      window-rule {
-        match app-id=r#"firefox$"# title="^Picture-in-Picture$"
-        open-floating true
-      }
+          Super+Alt+S allow-when-locked=true hotkey-overlay-title=null { spawn-sh "pkill orca || exec orca"; }
 
-      window-rule {
-        match app-id=r#"^org\.keepassxc\.KeePassXC$"#
-        match app-id=r#"^org\.gnome\.World\.Secrets$"#
+          XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.1+ -l 1.0"; }
+          XF86AudioLowerVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.1-"; }
+          XF86AudioMute        allow-when-locked=true { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"; }
+          XF86AudioMicMute     allow-when-locked=true { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"; }
 
-        block-out-from "screen-capture"
-      }
+          XF86AudioPlay        allow-when-locked=true { spawn-sh "playerctl play-pause"; }
+          XF86AudioStop        allow-when-locked=true { spawn-sh "playerctl stop"; }
+          XF86AudioPrev        allow-when-locked=true { spawn-sh "playerctl previous"; }
+          XF86AudioNext        allow-when-locked=true { spawn-sh "playerctl next"; }
 
-      window-rule {
-        geometry-corner-radius 12
-        clip-to-geometry true
-        draw-border-with-background false // Remove window background color
-      }
+          XF86MonBrightnessUp allow-when-locked=true { spawn "brightnessctl" "--class=backlight" "set" "+10%"; }
+          XF86MonBrightnessDown allow-when-locked=true { spawn "brightnessctl" "--class=backlight" "set" "10%-"; }
 
-      layer-rule {
-        match namespace="^awww-daemonoverlay$"
-        place-within-backdrop true
-      }
+          Mod+O repeat=false { toggle-overview; }
 
-      binds {
-        Mod+B hotkey-overlay-title="Open a Browser: firefox" { spawn "firefox"; }
-        Mod+N hotkey-overlay-title="Open a File Explorer" { spawn "nautilus"; }
-        Mod+Z hotkey-overlay-title="Open a Code Editor" { spawn "zed"; }
+          Mod+C repeat=false { close-window; }
 
-        Mod+Shift+Slash { show-hotkey-overlay; }
+          Mod+Left  { focus-column-left; }
+          Mod+Down  { focus-window-down; }
+          Mod+Up    { focus-window-up; }
+          Mod+Right { focus-column-right; }
+          Mod+H     { focus-column-left; }
+          Mod+J     { focus-window-down; }
+          Mod+K     { focus-window-up; }
+          Mod+L     { focus-column-right; }
 
-        Mod+T hotkey-overlay-title="Open a Terminal: ghostty" { spawn "ghostty"; }
-        Mod+Space hotkey-overlay-title="Run an Application: walker" { spawn "walker"; }
-        // Mod+Alt+L hotkey-overlay-title="Lock the Screen: dms" { spawn "dms ipc call lock lock"; }
+          Mod+Ctrl+Left  { move-column-left; }
+          Mod+Ctrl+Down  { move-window-down; }
+          Mod+Ctrl+Up    { move-window-up; }
+          Mod+Ctrl+Right { move-column-right; }
+          Mod+Ctrl+H     { move-column-left; }
+          Mod+Ctrl+J     { move-window-down; }
+          Mod+Ctrl+K     { move-window-up; }
+          Mod+Ctrl+L     { move-column-right; }
 
-        Super+Alt+S allow-when-locked=true hotkey-overlay-title=null { spawn-sh "pkill orca || exec orca"; }
+          Mod+Home { focus-column-first; }
+          Mod+End  { focus-column-last; }
+          Mod+Ctrl+Home { move-column-to-first; }
+          Mod+Ctrl+End  { move-column-to-last; }
 
-        XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.1+ -l 1.0"; }
-        XF86AudioLowerVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.1-"; }
-        XF86AudioMute        allow-when-locked=true { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"; }
-        XF86AudioMicMute     allow-when-locked=true { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"; }
+          Mod+Shift+Left  { focus-monitor-left; }
+          Mod+Shift+Down  { focus-monitor-down; }
+          Mod+Shift+Up    { focus-monitor-up; }
+          Mod+Shift+Right { focus-monitor-right; }
+          Mod+Shift+H     { focus-monitor-left; }
+          Mod+Shift+J     { focus-monitor-down; }
+          Mod+Shift+K     { focus-monitor-up; }
+          Mod+Shift+L     { focus-monitor-right; }
 
-        XF86AudioPlay        allow-when-locked=true { spawn-sh "playerctl play-pause"; }
-        XF86AudioStop        allow-when-locked=true { spawn-sh "playerctl stop"; }
-        XF86AudioPrev        allow-when-locked=true { spawn-sh "playerctl previous"; }
-        XF86AudioNext        allow-when-locked=true { spawn-sh "playerctl next"; }
+          Mod+Shift+Ctrl+Left  { move-column-to-monitor-left; }
+          Mod+Shift+Ctrl+Down  { move-column-to-monitor-down; }
+          Mod+Shift+Ctrl+Up    { move-column-to-monitor-up; }
+          Mod+Shift+Ctrl+Right { move-column-to-monitor-right; }
+          Mod+Shift+Ctrl+H     { move-column-to-monitor-left; }
+          Mod+Shift+Ctrl+J     { move-column-to-monitor-down; }
+          Mod+Shift+Ctrl+K     { move-column-to-monitor-up; }
+          Mod+Shift+Ctrl+L     { move-column-to-monitor-right; }
 
-        XF86MonBrightnessUp allow-when-locked=true { spawn "brightnessctl" "--class=backlight" "set" "+10%"; }
-        XF86MonBrightnessDown allow-when-locked=true { spawn "brightnessctl" "--class=backlight" "set" "10%-"; }
+          Mod+Page_Down      { focus-workspace-down; }
+          Mod+Page_Up        { focus-workspace-up; }
+          Mod+U              { focus-workspace-down; }
+          Mod+I              { focus-workspace-up; }
+          Mod+Ctrl+Page_Down { move-column-to-workspace-down; }
+          Mod+Ctrl+Page_Up   { move-column-to-workspace-up; }
+          Mod+Ctrl+U         { move-column-to-workspace-down; }
+          Mod+Ctrl+I         { move-column-to-workspace-up; }
 
-        Mod+O repeat=false { toggle-overview; }
+          Mod+Shift+Page_Down { move-workspace-down; }
+          Mod+Shift+Page_Up   { move-workspace-up; }
+          Mod+Shift+U         { move-workspace-down; }
+          Mod+Shift+I         { move-workspace-up; }
 
-        Mod+C repeat=false { close-window; }
+          Mod+WheelScrollDown      cooldown-ms=150 { focus-workspace-down; }
+          Mod+WheelScrollUp        cooldown-ms=150 { focus-workspace-up; }
+          Mod+Ctrl+WheelScrollDown cooldown-ms=150 { move-column-to-workspace-down; }
+          Mod+Ctrl+WheelScrollUp   cooldown-ms=150 { move-column-to-workspace-up; }
 
-        Mod+Left  { focus-column-left; }
-        Mod+Down  { focus-window-down; }
-        Mod+Up    { focus-window-up; }
-        Mod+Right { focus-column-right; }
-        Mod+H     { focus-column-left; }
-        Mod+J     { focus-window-down; }
-        Mod+K     { focus-window-up; }
-        Mod+L     { focus-column-right; }
+          Mod+WheelScrollRight      { focus-column-right; }
+          Mod+WheelScrollLeft       { focus-column-left; }
+          Mod+Ctrl+WheelScrollRight { move-column-right; }
+          Mod+Ctrl+WheelScrollLeft  { move-column-left; }
 
-        Mod+Ctrl+Left  { move-column-left; }
-        Mod+Ctrl+Down  { move-window-down; }
-        Mod+Ctrl+Up    { move-window-up; }
-        Mod+Ctrl+Right { move-column-right; }
-        Mod+Ctrl+H     { move-column-left; }
-        Mod+Ctrl+J     { move-window-down; }
-        Mod+Ctrl+K     { move-window-up; }
-        Mod+Ctrl+L     { move-column-right; }
+          Mod+Shift+WheelScrollDown      { focus-column-right; }
+          Mod+Shift+WheelScrollUp        { focus-column-left; }
+          Mod+Ctrl+Shift+WheelScrollDown { move-column-right; }
+          Mod+Ctrl+Shift+WheelScrollUp   { move-column-left; }
 
-        Mod+Home { focus-column-first; }
-        Mod+End  { focus-column-last; }
-        Mod+Ctrl+Home { move-column-to-first; }
-        Mod+Ctrl+End  { move-column-to-last; }
+          Mod+1 { focus-workspace 1; }
+          Mod+2 { focus-workspace 2; }
+          Mod+3 { focus-workspace 3; }
+          Mod+4 { focus-workspace 4; }
+          Mod+5 { focus-workspace 5; }
+          Mod+6 { focus-workspace 6; }
+          Mod+7 { focus-workspace 7; }
+          Mod+8 { focus-workspace 8; }
+          Mod+9 { focus-workspace 9; }
+          Mod+Ctrl+1 { move-column-to-workspace 1; }
+          Mod+Ctrl+2 { move-column-to-workspace 2; }
+          Mod+Ctrl+3 { move-column-to-workspace 3; }
+          Mod+Ctrl+4 { move-column-to-workspace 4; }
+          Mod+Ctrl+5 { move-column-to-workspace 5; }
+          Mod+Ctrl+6 { move-column-to-workspace 6; }
+          Mod+Ctrl+7 { move-column-to-workspace 7; }
+          Mod+Ctrl+8 { move-column-to-workspace 8; }
+          Mod+Ctrl+9 { move-column-to-workspace 9; }
 
-        Mod+Shift+Left  { focus-monitor-left; }
-        Mod+Shift+Down  { focus-monitor-down; }
-        Mod+Shift+Up    { focus-monitor-up; }
-        Mod+Shift+Right { focus-monitor-right; }
-        Mod+Shift+H     { focus-monitor-left; }
-        Mod+Shift+J     { focus-monitor-down; }
-        Mod+Shift+K     { focus-monitor-up; }
-        Mod+Shift+L     { focus-monitor-right; }
+          Mod+BracketLeft  { consume-or-expel-window-left; }
+          Mod+BracketRight { consume-or-expel-window-right; }
 
-        Mod+Shift+Ctrl+Left  { move-column-to-monitor-left; }
-        Mod+Shift+Ctrl+Down  { move-column-to-monitor-down; }
-        Mod+Shift+Ctrl+Up    { move-column-to-monitor-up; }
-        Mod+Shift+Ctrl+Right { move-column-to-monitor-right; }
-        Mod+Shift+Ctrl+H     { move-column-to-monitor-left; }
-        Mod+Shift+Ctrl+J     { move-column-to-monitor-down; }
-        Mod+Shift+Ctrl+K     { move-column-to-monitor-up; }
-        Mod+Shift+Ctrl+L     { move-column-to-monitor-right; }
+          Mod+Comma  { consume-window-into-column; }
 
-        Mod+Page_Down      { focus-workspace-down; }
-        Mod+Page_Up        { focus-workspace-up; }
-        Mod+U              { focus-workspace-down; }
-        Mod+I              { focus-workspace-up; }
-        Mod+Ctrl+Page_Down { move-column-to-workspace-down; }
-        Mod+Ctrl+Page_Up   { move-column-to-workspace-up; }
-        Mod+Ctrl+U         { move-column-to-workspace-down; }
-        Mod+Ctrl+I         { move-column-to-workspace-up; }
+          Mod+Period { expel-window-from-column; }
 
-        Mod+Shift+Page_Down { move-workspace-down; }
-        Mod+Shift+Page_Up   { move-workspace-up; }
-        Mod+Shift+U         { move-workspace-down; }
-        Mod+Shift+I         { move-workspace-up; }
+          Mod+R { switch-preset-column-width; }
 
-        Mod+WheelScrollDown      cooldown-ms=150 { focus-workspace-down; }
-        Mod+WheelScrollUp        cooldown-ms=150 { focus-workspace-up; }
-        Mod+Ctrl+WheelScrollDown cooldown-ms=150 { move-column-to-workspace-down; }
-        Mod+Ctrl+WheelScrollUp   cooldown-ms=150 { move-column-to-workspace-up; }
+          Mod+Shift+R { switch-preset-window-height; }
+          Mod+Ctrl+R { reset-window-height; }
+          Mod+F { maximize-column; }
+          Mod+Shift+F { fullscreen-window; }
 
-        Mod+WheelScrollRight      { focus-column-right; }
-        Mod+WheelScrollLeft       { focus-column-left; }
-        Mod+Ctrl+WheelScrollRight { move-column-right; }
-        Mod+Ctrl+WheelScrollLeft  { move-column-left; }
+          Mod+Ctrl+F { expand-column-to-available-width; }
 
-        Mod+Shift+WheelScrollDown      { focus-column-right; }
-        Mod+Shift+WheelScrollUp        { focus-column-left; }
-        Mod+Ctrl+Shift+WheelScrollDown { move-column-right; }
-        Mod+Ctrl+Shift+WheelScrollUp   { move-column-left; }
+          Mod+Q { center-column; }
 
-        Mod+1 { focus-workspace 1; }
-        Mod+2 { focus-workspace 2; }
-        Mod+3 { focus-workspace 3; }
-        Mod+4 { focus-workspace 4; }
-        Mod+5 { focus-workspace 5; }
-        Mod+6 { focus-workspace 6; }
-        Mod+7 { focus-workspace 7; }
-        Mod+8 { focus-workspace 8; }
-        Mod+9 { focus-workspace 9; }
-        Mod+Ctrl+1 { move-column-to-workspace 1; }
-        Mod+Ctrl+2 { move-column-to-workspace 2; }
-        Mod+Ctrl+3 { move-column-to-workspace 3; }
-        Mod+Ctrl+4 { move-column-to-workspace 4; }
-        Mod+Ctrl+5 { move-column-to-workspace 5; }
-        Mod+Ctrl+6 { move-column-to-workspace 6; }
-        Mod+Ctrl+7 { move-column-to-workspace 7; }
-        Mod+Ctrl+8 { move-column-to-workspace 8; }
-        Mod+Ctrl+9 { move-column-to-workspace 9; }
+          Mod+Ctrl+C { center-visible-columns; }
 
-        Mod+BracketLeft  { consume-or-expel-window-left; }
-        Mod+BracketRight { consume-or-expel-window-right; }
+          Mod+Minus { set-column-width "-10%"; }
+          Mod+Equal { set-column-width "+10%"; }
 
-        Mod+Comma  { consume-window-into-column; }
+          Mod+Shift+Minus { set-window-height "-10%"; }
+          Mod+Shift+Equal { set-window-height "+10%"; }
 
-        Mod+Period { expel-window-from-column; }
+          Mod+V       { toggle-window-floating; }
+          Mod+Shift+V { switch-focus-between-floating-and-tiling; }
 
-        Mod+R { switch-preset-column-width; }
+          Mod+W { toggle-column-tabbed-display; }
 
-        Mod+Shift+R { switch-preset-window-height; }
-        Mod+Ctrl+R { reset-window-height; }
-        Mod+F { maximize-column; }
-        Mod+Shift+F { fullscreen-window; }
+          Print { screenshot; }
+          Ctrl+Print { screenshot-screen; }
+          Alt+Print { screenshot-window; }
 
-        Mod+Ctrl+F { expand-column-to-available-width; }
+          Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
 
-        Mod+Q { center-column; }
+          Mod+Shift+E { quit; }
+          Ctrl+Alt+Delete { quit; }
 
-        Mod+Ctrl+C { center-visible-columns; }
-
-        Mod+Minus { set-column-width "-10%"; }
-        Mod+Equal { set-column-width "+10%"; }
-
-        Mod+Shift+Minus { set-window-height "-10%"; }
-        Mod+Shift+Equal { set-window-height "+10%"; }
-
-        Mod+V       { toggle-window-floating; }
-        Mod+Shift+V { switch-focus-between-floating-and-tiling; }
-
-        Mod+W { toggle-column-tabbed-display; }
-
-        Print { screenshot; }
-        Ctrl+Print { screenshot-screen; }
-        Alt+Print { screenshot-window; }
-
-        Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
-
-        Mod+Shift+E { quit; }
-        Ctrl+Alt+Delete { quit; }
-
-        Mod+Shift+P { power-off-monitors; }
-      }
+          Mod+Shift+P { power-off-monitors; }
+        }
     '';
   };
 
+  # eww script for niri
+  home.file.".local/bin/eww-start" = {
+    executable = true;
+    text = ''
+      #!/usr/bin/env bash
+      eww open-many clock cpu-window mem-window launcher-window workspaces-window date-window volume-window net-window cputemp-window
+      sleep 0.3
+      eww update volume_text="$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{v=int($2*100); print v "%"}')"
+      eww update volume_icon="$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | grep -q '0\.00' && echo '󰖁' || echo '󰕾')"
+    '';
+  };
+
+  # Fcitx config
   xdg.configFile."fcitx5/profile" = {
     force = true;
     text = ''
@@ -538,21 +555,19 @@
     '';
   };
 
-  xdg.configFile."ghostty/config" = {
-    force = true;
-    text = ''
-      font-size = 24
-      window-padding-x = 25
-      window-padding-y = 25
-    '';
-  };
-
   # Bar
   xdg.configFile."eww/eww.yuck" = {
     force = true;
     text = ''
-      (defpoll time :interval "0.1s"
+      (deflisten workspaces
+        "~/.local/bin/eww-workspaces")
+
+      (defpoll time :interval "1s"
         "date '+%-H:%M'")
+
+      (deflisten volume_icon :initial "󰖁" "~/.local/bin/eww-volume-icon")
+        (deflisten volume_text :initial "0%" "~/.local/bin/eww-volume-text")
+        (defpoll volume_visible :interval "99999s" "echo false")
 
       (defpoll cpu :interval "2s"
         "top -bn1 | grep 'Cpu(s)' | awk '{printf \"%d%%\", $2}'")
@@ -560,59 +575,56 @@
       (defpoll mem :interval "2s"
         "free | grep Mem | awk '{printf \"%d%%\", $3/$2 * 100}'")
 
-      (defpoll workspaces :interval "0.1s"
-        "~/.local/bin/eww-workspaces")
-
-      (defpoll date :interval "60s"
-        "date '+%Y/%m/%d'")
-
-      (defpoll volume_icon :interval "0.1s"
-        "wpctl get-volume @DEFAULT_AUDIO_SINK@ | grep -q '0\\.00' && echo '󰖁' || echo '󰕾'")
-
-      (defpoll volume_text :interval "0.1s"
-        "wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{v=int($2*100); print v \"%\"}'")
-
-      (defpoll volume_visible :interval "99999s" "echo false")
-
       (defpoll net_icon :interval "3s"
         "~/.local/bin/eww-net-icon")
 
-      (defpoll cpu_temp :interval "2s"
-        "sensors | grep -A2 'k10temp\\|coretemp' | grep 'Tctl\\|Package id 0\\|Core 0' | head -1 | awk '{gsub(/[+°C]/,\"\",$2); printf \"%d℃\", $2}'")
 
-
-
-      (defwidget launcher []
-        (button :class "launcher-btn"
-          :onclick "walker &"
-          :halign "center"
-          :valign "center"
-          (label :text "" :halign "center" :valign "center")))
 
       (defwidget workspace-btn [ws]
         (eventbox
           :onclick {"niri msg action focus-workspace " + jq(ws, ".id")}
-        (label
-          :class {jq(ws, ".label_class") == "ws-label ws-label-active" ? "ws-label-active" : "ws-label"}
-          :text {jq(ws, ".idx")})))
+          (label
+            :class {jq(ws, ".is_active") == "true" ? "ws-label-active" : "ws-label"}
+            :text {jq(ws, ".idx")})))
 
       (defwidget workspaces []
         (box :class "ws-box"
-             :orientation "h"
-             :spacing 8
-             :space-evenly false
-        (for ws in {workspaces}
-          (workspace-btn :ws {ws}))))
+          :orientation "h"
+          :spacing 8
+          :space-evenly false
+          (for ws in {workspaces}
+            (workspace-btn :ws {ws}))))
 
-      (defwidget bar []
+      (defwidget clock []
         (centerbox :orientation "h"
           :class "clock-box"
           (box)
           {time}
           (box)))
 
+      (defwidget volume-widget []
+        (eventbox
+          :onclick "eww open-many --toggle volume-overlay-window volume-popup-window"
+          (box :class "vol-box" :spacing 6 :space-evenly false
+            (label :class "vol-icon" :text {volume_icon})
+            (label :class "sysinfo-text" :text {volume_text}))))
+
+      (defwidget volume-popup []
+        (box :class "vol-popup" :orientation "h" :spacing 8 :space-evenly false
+          (label :class "vol-icon" :text {volume_icon})
+            (scale
+              :class "vol-slider"
+              :orientation "h"
+              :min 0
+              :max 101
+              :value {replace(volume_text, "%", "")}
+              :onchange "wpctl set-volume @DEFAULT_AUDIO_SINK@ {}%")))
+
+      (defwidget volume-overlay []
+        (eventbox :onclick "eww close volume-popup-window && eww close volume-overlay-window"))
+
       (defwidget cpu-widget []
-          (box :class "cpu-box" :spacing 6 :space-evenly false
+        (box :class "cpu-box" :spacing 6 :space-evenly false
           (label :class "cpu-icon" :text "󰍛")
           (label :class "sysinfo-text" :text {cpu})))
 
@@ -621,262 +633,196 @@
           (label :class "mem-icon" :text "")
           (label :class "sysinfo-text" :text {mem})))
 
-      (defwidget date-widget []
-        (box :class "date-box" :spacing 6 :space-evenly false
-        (label :class "sysinfo-text" :text {date})))
-
-      (defwidget volume-widget []
-        (eventbox
-        :onclick "eww open-many --toggle volume-popup-window"
-        (box :class "vol-box" :spacing 6 :space-evenly false
-          (label :class "vol-icon" :text {volume_icon})
-          (label :class "sysinfo-text" :text {volume_text}))))
-
-      (defwidget volume-popup []
-        (box :class "vol-popup" :orientation "h" :spacing 8 :space-evenly false
-        (label :class "vol-icon" :text {volume_icon})
-        (scale
-          :class "vol-slider"
-          :orientation "h"
-          :min 0
-          :max 101
-          :value {replace(volume_text, "%", "")}
-          :onchange "wpctl set-volume @DEFAULT_AUDIO_SINK@ {}%")))
-
       (defwidget net-widget []
         (box :class "net-box" :spacing 6 :space-evenly false
         (label :class "net-icon" :text {net_icon})))
 
-      (defwidget cputemp-widget []
-        (box :class "cputemp-box" :spacing 6 :space-evenly false
-        (label :class "cputemp-icon" :text "")
-        (label :class "sysinfo-text" :text {cpu_temp})))
+      (defwidget launcher []
+        (button :class "launcher-btn"
+          :onclick "eww open-many --toggle power-menu-overlay-window power-menu-window"
+          (label :text "󰐥" :halign "center" :valign "center")))
+
+      (defwidget power-menu []
+        (box :class "power-menu" :orientation "v" :spacing 0 :space-evenly false
+          (button :class "power-menu-item"
+            :onclick "eww close power-menu-window && eww close power-menu-overlay-window && walker &"
+            (box :spacing 10 :space-evenly false
+              (label :class "power-menu-icon" :text "󰀻")
+              (label :class "power-menu-text" :text "Show Apps")))
+          (box :class "power-menu-sep" :halign "fill")
+          (button :class "power-menu-item"
+            :onclick "eww close power-menu-window&& eww close power-menu-overlay-window && systemctl suspend"
+              (box :spacing 10 :space-evenly false
+                (label :class "power-menu-icon" :text "")
+                (label :class "power-menu-text" :text "Sleep")))
+          (button :class "power-menu-item"
+            :onclick "eww close power-menu-window && eww close power-menu-overlay-window && hyprlock &"
+              (box :spacing 10 :space-evenly false
+                (label :class "power-menu-icon" :text "󰌾")
+                (label :class "power-menu-text" :text "Lock Screen")))
+          (button :class "power-menu-item"
+            :onclick "eww close power-menu-window && eww close power-menu-overlay-window && reboot"
+              (box :spacing 10 :space-evenly false
+                (label :class "power-menu-icon" :text "")
+                (label :class "power-menu-text" :text "Restart")))
+          (button :class "power-menu-item power-menu-item-shutdown"
+            :onclick "eww close power-menu-window && eww close power-menu-overlay-window && shutdown now"
+            (box :spacing 10 :space-evenly false
+              (label :class "power-menu-icon" :text "󰐥")
+              (label :class "power-menu-text" :text "Shut Down")))))
+
+      (defwidget power-menu-overlay []
+        (eventbox :onclick "eww close power-menu-window && eww close power-menu-overlay-window"))
 
 
-
-      (defwindow launcher-window
-        :monitor 0
-        :windowtype "dock"
-        :geometry (geometry :x "2px" :y "0%" :width "30px" :height "30px" :anchor "top left")
-        :reserve (struts :side "top" :distance "20px")
-        (launcher))
 
       (defwindow workspaces-window
         :monitor 0
         :windowtype "dock"
-        :geometry (geometry :x "38px" :y "0%" :width "10px" :height "30px" :anchor "top left")
+        :geometry (geometry :x "10px" :y "0%" :width "10px" :height "34px" :anchor "top left")
         :reserve (struts :side "top" :distance "20px")
         (workspaces))
 
-      (defwindow bar
+      (defwindow clock
         :monitor 0
         :windowtype "dock"
-        :geometry (geometry :x "0%" :y "0%" :width "65px" :height "30px" :anchor "top center")
+        :geometry (geometry :x "0%" :y "0%" :width "65px" :height "34px" :anchor "top center")
         :reserve (struts :side "top" :distance "20px")
-        (bar))
+        (clock))
 
       (defwindow volume-window
         :monitor 0
         :windowtype "dock"
-        :geometry (geometry :x "388px" :y "0%" :width "70px" :height "30px" :anchor "top right")
+        :geometry (geometry :x "266px" :y "0%" :width "70px" :height "34px" :anchor "top right")
         :reserve (struts :side "top" :distance "20px")
         (volume-widget))
 
       (defwindow volume-popup-window
         :monitor 0
         :windowtype "dock"
-        :geometry (geometry :x "260px" :y "35px" :width "200px" :height "40px" :anchor "top right")
+        :geometry (geometry :x "200px" :y "35px" :width "200px" :height "40px" :anchor "top right")
         (volume-popup))
+
+      (defwindow volume-overlay-window
+        :monitor 0
+        :windowtype "dock"
+        :geometry (geometry :x "0" :y "0" :width "100%" :height "100%")
+        (volume-overlay))
 
       (defwindow cpu-window
         :monitor 0
         :windowtype "dock"
-        :geometry (geometry :x "236px" :y "0%" :width "70px" :height "30px" :anchor "top right")
+        :geometry (geometry :x "188px" :y "0%" :width "70px" :height "34px" :anchor "top right")
         :reserve (struts :side "top" :distance "20px")
         (cpu-widget))
 
       (defwindow mem-window
         :monitor 0
         :windowtype "dock"
-        :geometry (geometry :x "156px" :y "0%" :width "70px" :height "30px" :anchor "top right")
+        :geometry (geometry :x "106px" :y "0%" :width "70px" :height "34px" :anchor "top right")
         :reserve (struts :side "top" :distance "20px")
         (mem-widget))
-
-      (defwindow date-window
-        :monitor 0
-        :windowtype "dock"
-        :geometry (geometry :x "2px" :y "0%" :width "100px" :height "30px" :anchor "top right")
-        :reserve (struts :side "top" :distance "20px")
-        (date-widget))
 
       (defwindow net-window
         :monitor 0
         :windowtype "dock"
-        :geometry (geometry :x "110px" :y "0%" :width "40px" :height "30px" :anchor "top right")
+        :geometry (geometry :x "58px" :y "0%" :width "40px" :height "34px" :anchor "top right")
         :reserve (struts :side "top" :distance "20px")
         (net-widget))
 
-      (defwindow cputemp-window
+      (defwindow launcher-window
         :monitor 0
         :windowtype "dock"
-        :geometry (geometry :x "312px" :y "0%" :width "70px" :height "30px" :anchor "top right")
+        :geometry (geometry :x "10px" :y "0%" :width "40px" :height "34px" :anchor "top right")
         :reserve (struts :side "top" :distance "20px")
-        (cputemp-widget))
+        (launcher))
+
+      (defwindow power-menu-window
+        :monitor 0
+        :windowtype "dock"
+        :geometry (geometry :x "6px" :y "35px" :width "220px" :height "10px" :anchor "top right")
+        (power-menu))
+
+      (defwindow power-menu-overlay-window
+        :monitor 0
+        :windowtype "dock"
+        :geometry (geometry :x "0" :y "0" :width "100%" :height "100%")
+        (power-menu-overlay))
     '';
   };
 
   xdg.configFile."eww/eww.css" = {
     force = true;
     text = ''
-       window {
-         background: transparent;
-       }
+      window {
+        background: transparent;
+      }
+
+      .sysinfo-text {
+        font-family: 'Inter', sans-serif;
+        font-size: 13px;
+        color: #e0e0e0;
+      }
+
+      .ws-box {
+        margin: 4px 0;
+        padding: 0 10px;
+        background-color: rgba(20, 20, 20, 0.80);
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        border-radius: 16px;
+      }
+
+      .ws-label {
+        min-width: 20px;
+        color: rgba(224, 224, 224, 0.5);
+        font-family: 'JetBrainsMono Nerd Font', monospace;
+        font-size: 13px;
+        padding: 2px 8px;
+        border-radius: 50%;
+      }
+
+      .ws-label-active {
+        min-width: 20px;
+        color: #e0e0e0;
+        font-family: 'JetBrainsMono Nerd Font', monospace;
+        font-size: 13px;
+        padding: 2px 8px;
+      }
 
       .clock-box {
-         margin: 2px 0;
-         background-color: #1f1f28;
-         color: #ffffff;
-         font-family: 'Roboto', sans-serif;
-         font-size: 16px;
-         border: 1px solid #3a3a47;
-         border-radius: 16px;
+        margin: 4px 0;
+        background-color: rgba(20, 20, 20, 0.80);
+        color: #e0e0e0;
+        font-family: 'Roboto', sans-serif;
+        font-size: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        border-radius: 16px;
       }
 
       centerbox {
-         padding: 0 10px;
+        padding: 0 10px;
       }
 
-      .cpu-box {
-         margin: 2px 0;
-         padding: 0 12px;
-         background-color: #1f1f28;
-         border: 1px solid #3a3a47;
-         border-radius: 16px;
-       }
+      .vol-box {
+        margin: 4px 0;
+        padding: 0 12px;
+        background-color: rgba(20, 20, 20, 0.80);
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        border-radius: 16px;
+      }
 
-       .mem-box {
-         margin: 2px 0;
-         padding: 0 12px;
-         background-color: #1f1f28;
-         border: 1px solid #3a3a47;
-         border-radius: 16px;
-       }
-
-       .cpu-icon {
-         font-family: 'JetBrainsMono Nerd Font', monospace;
-         font-size: 17px;
-         color: #ffffff;
-         padding-right: 2px;
-       }
-
-       .mem-icon {
-         font-family: 'JetBrainsMono Nerd Font', monospace;
-         font-size: 14px;
-         color: #ffffff;
-         padding-right: 7px;
-       }
-
-       .sysinfo-text {
-         font-family: 'Roboto', sans-serif;
-         font-size: 14px;
-         color: #ffffff;
-       }
-
-       .launcher-btn {
-         background: transparent;
-         border: none;
-         padding: 0;
-         margin: 0;
-         font-family: 'JetBrainsMono Nerd Font', monospace;
-         font-size: 22px;
-         color: #40b7fe;
-         box-shadow: none;
-         outline: none;
-         -gtk-outline-radius: 0;
-         min-width: 30px;
-         min-height: 30px;
-       }
-
-       .date-box {
-         margin: 2px 0;
-         padding: 0 12px;
-         background-color: #1f1f28;
-         border: 1px solid #3a3a47;
-         border-radius: 16px;
-       }
-
-       .vol-box {
-         margin: 2px 0;
-         padding: 0 12px;
-         background-color: #1f1f28;
-         border: 1px solid #3a3a47;
-         border-radius: 16px;
-       }
-
-       .vol-icon {
-         font-family: 'JetBrainsMono Nerd Font', monospace;
-         font-size: 16px;
-         color: #ffffff;
-         padding-right: 2px;
-       }
-
-       .net-box {
-         margin: 2px 0;
-         padding: 0 12px;
-         background-color: #1f1f28;
-         border: 1px solid #3a3a47;
-         border-radius: 16px;
-       }
-
-       .net-icon {
-         font-family: 'JetBrainsMono Nerd Font', monospace;
-         font-size: 16px;
-         color: #ffffff;
-       }
-
-       .cputemp-box {
-         margin: 2px 0;
-         padding: 0 12px;
-         background-color: #1f1f28;
-         border: 1px solid #3a3a47;
-         border-radius: 16px;
-       }
-
-       .cputemp-icon {
-         font-family: 'JetBrainsMono Nerd Font', monospace;
-         font-size: 14px;
-         color: #ffffff;
-       }
-
-       .ws-box {
-         margin: 2px 0;
-         padding: 0 10px;
-         background-color: #1f1f28;
-         border: 1px solid #3a3a47;
-         border-radius: 16px;
-       }
-
-       .ws-label {
-         min-width: 20px;
-         color: #ffffff;
-         font-family: 'JetBrainsMono Nerd Font', monospace;
-         font-size: 13px;
-         padding: 2px 8px;
-       }
-
-       .ws-label-active {
-         min-width: 20px;
-         color: #7aa2f7;
-         font-family: 'JetBrainsMono Nerd Font', monospace;
-         font-size: 13px;
-         padding: 2px 8px;
-       }
+      .vol-icon {
+        font-family: 'JetBrainsMono Nerd Font', monospace;
+        font-size: 16px;
+        color: #e0e0e0;
+        padding-right: 2px;
+      }
 
       .vol-popup {
-        background-color: #1f1f28;
-        border: 1px solid #3a3a47;
+        background-color: #30302e;
+        border: 1px solid #64635f;
         border-radius: 12px;
-        padding: 4px 12px;
+        padding: 8px 12px;
       }
 
       .vol-slider {
@@ -903,6 +849,113 @@
         min-height: 14px;
         margin: -4px 0;
       }
+
+      .cpu-box {
+        margin: 4px 0;
+        padding: 0 12px;
+        background-color: rgba(20, 20, 20, 0.80);
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        border-radius: 16px;
+      }
+
+      .cpu-icon {
+        font-family: 'JetBrainsMono Nerd Font', monospace;
+        font-size: 17px;
+        color: #e0e0e0;
+        padding-right: 2px;
+      }
+
+      .mem-box {
+        margin: 4px 0;
+        padding: 0 12px;
+        background-color: rgba(20, 20, 20, 0.80);
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        border-radius: 16px;
+      }
+
+      .mem-icon {
+        font-family: 'JetBrainsMono Nerd Font', monospace;
+        font-size: 14px;
+        color: #e0e0e0;
+        padding-right: 7px;
+      }
+
+      .net-box {
+        margin: 4px 0;
+        padding: 0 12px;
+        background-color: rgba(20, 20, 20, 0.80);
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        border-radius: 16px;
+      }
+
+      .net-icon {
+        font-family: 'JetBrainsMono Nerd Font', monospace;
+        font-size: 16px;
+        color: #e0e0e0;
+      }
+
+      .launcher-btn {
+        background: rgba(20, 20, 20, 0.80);
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        border-radius: 16px;
+        border: none;
+        padding: 0 2px;
+        margin: 4px 0;
+        box-shadow: none;
+        outline: none;
+        -gtk-outline-radius: 0;
+        font-size: 17px;
+        font-family: 'JetBrainsMono Nerd Font', monospace;
+        color: #e0e0e0;
+      }
+
+      .power-menu {
+        background-color: #30302e;
+        border: 1px solid #64635f;
+        border-radius: 14px;
+        padding: 4px 4px;
+
+            }
+
+      .power-menu-item {
+        background: transparent;
+        border: none;
+        border-radius: 9px;
+        padding: 3px 8px;
+        box-shadow: none;
+        outline: none;
+        -gtk-outline-radius: 0;
+        min-width: 160px;
+      }
+
+      .power-menu-item:hover {
+        background-color: #1f1e1d;
+      }
+
+      .power-menu-icon {
+        font-family: 'JetBrainsMono Nerd Font', monospace;
+        font-size: 14px;
+        color: #E6E6E6;
+        min-width: 20px;
+      }
+
+      .power-menu-text {
+        font-family: 'Noto Sans', sans-serif;
+        font-size: 14px;
+        color: #faf9f5;
+      }
+
+      .power-menu-item-shutdown .power-menu-icon,
+      .power-menu-item-shutdown .power-menu-text {
+        color: #FF6B6B;
+      }
+
+      .power-menu-sep {
+        background-color: #3a3a47;
+        min-height: 1px;
+        margin: 4px 10px;
+        padding: 0;
+      }
     '';
   };
 
@@ -924,8 +977,83 @@
   home.file.".local/bin/eww-workspaces" = {
     executable = true;
     text = ''
-      #!/bin/sh
-      niri msg -j workspaces | jq '[.[] | {id: .id, idx: .idx, label_class: (if .is_active then "ws-label ws-label-active" else "ws-label" end)}] | sort_by(.idx)'
+      #!/usr/bin/env bash
+      get_workspaces() {
+        niri msg -j workspaces | jq -c '[.[] | {id: .id, idx: .idx, is_active: .is_active}] | sort_by(.idx)'
+      }
+
+      get_workspaces
+
+      niri msg -j event-stream | while IFS= read -r line; do
+        if echo "$line" | grep -qE '"WorkspaceActivated"|"WorkspacesChanged"|"WorkspaceActiveWindowChanged"'; then
+          get_workspaces
+        fi
+      done
+    '';
+  };
+  home.file.".local/bin/eww-volume-icon" = {
+    executable = true;
+    text = ''
+      #!/usr/bin/env bash
+      wpctl get-volume @DEFAULT_AUDIO_SINK@ | grep -q '0\.00' && echo '󰖁' || echo '󰕾'
+      pactl subscribe 2>/dev/null | grep --line-buffered "Event 'change' on sink" | while read -r _; do
+        wpctl get-volume @DEFAULT_AUDIO_SINK@ | grep -q '0\.00' && echo '󰖁' || echo '󰕾'
+      done
+    '';
+  };
+  home.file.".local/bin/eww-volume-text" = {
+    executable = true;
+    text = ''
+      #!/usr/bin/env bash
+      wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{v=int($2*100); print v "%"}'
+      pactl subscribe 2>/dev/null | grep --line-buffered "Event 'change' on sink" | while read -r _; do
+        wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{v=int($2*100); print v "%"}'
+      done
+    '';
+  };
+
+  # lock screen
+  xdg.configFile."hypr/hyprlock.conf" = {
+    force = true;
+    text = ''
+      general {
+        disable_loading_bar = false
+        hide_cursor = true
+        grace = 0
+        no_fade_in = false
+      }
+
+      background {
+        monitor =
+        path = /etc/nixos/wallpaper.jpg
+        brightness = 0.8
+        contrast = 1.0
+        vibrancy = 0.2
+        vibrancy_darkness = 0.0
+      }
+
+      label {
+        monitor =
+          text = cmd[update:1000] echo "$(date +"%-H:%M")"
+          color = rgba(255, 255, 255, 1.0)
+          font_size = 120
+          font_family = Roboto Medium
+          position = 0, 500
+          halign = center
+          valign = center
+      }
+      input-field {
+        size = 350, 50
+        position = 0, -500
+        halign = center
+        valign = center
+        rounding = 16
+        dots_center = true
+        outer_color = rgba(255, 255, 255, 0.5)
+        inner_color = rgba(0, 0, 0, 0.2)
+        font_color = rgba(255, 255, 255, 1.0)
+        outline_thickness = 2
+      }
     '';
   };
 }
