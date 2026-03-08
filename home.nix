@@ -1,12 +1,3 @@
-# Wallpaper
-# https://github.com/basecamp/omarchy/blob/master/themes/everforest/backgrounds/1-tree-tops.jpg
-
-# blur wallpaper command
-# magick input.jpg -gaussian-blur 0x8 output.jpg
-
-# and copy
-# sudo cp ~/Desktop/wallpaper.jpg /etc/nixos/
-
 {
   config,
   lib,
