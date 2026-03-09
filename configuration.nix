@@ -111,7 +111,7 @@
   };
 
   # User
-  users.users.name = {
+  users.users.apotail = {
     isNormalUser = true;
     extraGroups = [ "wheel" ];
     packages = with pkgs; [

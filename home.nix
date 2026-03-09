@@ -11,8 +11,8 @@
     inputs.walker.homeManagerModules.default
   ];
 
-  home.username = "name";
-  home.homeDirectory = "/home/name";
+  home.username = "apotail";
+  home.homeDirectory = "/home/apotail";
   home.stateVersion = "26.05";
 
   # Cursor theme
@@ -230,7 +230,7 @@
       spawn-at-startup "awww-daemon" "-n" "overlay"
       spawn-at-startup "awww" "img" "-n" "overlay" "/etc/nixos/blur-wallpaper.jpg" "--transition-type" "none"
       spawn-at-startup "eww" "daemon"
-      spawn-at-startup "/home/sam/.local/bin/eww-start"
+      spawn-at-startup "/home/apotail/.local/bin/eww-start"
 
       prefer-no-csd
 
