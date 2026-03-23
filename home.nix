@@ -11,9 +11,43 @@
     inputs.walker.homeManagerModules.default
   ];
 
-  home.username = "name";
-  home.homeDirectory = "/home/name";
+  home.username = "user";
+  home.homeDirectory = "/home/user";
   home.stateVersion = "26.05";
+
+  # Set dark mode
+  dconf.settings = {
+    "org/gnome/desktop/interface" = {
+      color-scheme = "prefer-dark";
+    };
+  };
+
+  # dconf.settings = {
+  #   "org/gnome/desktop/wm/preferences" = {
+  #     button-layout = ":minimize,maximize,close";
+  #   };
+  # };
+
+  # Packages
+  home.packages = with pkgs; [
+    rustc
+    cargo
+    rustfmt
+    clippy
+    rust-analyzer
+    cargo-watch
+    cargo-edit
+    restic
+    hdparm
+    typst
+    python3
+    reaper
+    spotify
+    inkscape
+    obsidian
+    godot
+    go
+  ];
 
   # Cursor theme
   home.pointerCursor = {
@@ -230,7 +264,7 @@
       spawn-at-startup "awww-daemon" "-n" "overlay"
       spawn-at-startup "awww" "img" "-n" "overlay" "/etc/nixos/blur-wallpaper.jpg" "--transition-type" "none"
       spawn-at-startup "eww" "daemon"
-      spawn-at-startup "/home/sam/.local/bin/eww-start"
+      spawn-at-startup "/home/user/.local/bin/eww-start"
 
       prefer-no-csd
 

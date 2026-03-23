@@ -28,6 +28,27 @@
   networking.hostName = "nixos";
   networking.networkmanager.enable = true;
 
+  # firewallを開放
+  networking.firewall.allowedTCPPorts = [
+    5173
+    3000
+  ];
+
+  # MariaDB
+  services.mysql = {
+    enable = true;
+    package = pkgs.mariadb;
+    ensureDatabases = [ "testdb" ];
+    ensureUsers = [
+      {
+        name = "testuser";
+        ensurePermissions = {
+          "testdb.*" = "ALL PRIVILEGES";
+        };
+      }
+    ];
+  };
+
   # Graphics
   hardware.graphics = {
     enable = true;
@@ -101,6 +122,13 @@
   # Window Manager
   programs.niri.enable = true;
 
+  # or GNOME
+  #services.displayManager.gdm.enable = true;
+  #services.desktopManager.gnome.enable = true;
+  #services.gnome.core-apps.enable = false;
+  #services.gnome.core-developer-tools.enable = false;
+  #services.gnome.games.enable = false;
+
   # lock screen
   programs.hyprlock.enable = true;
 
@@ -111,7 +139,7 @@
   };
 
   # User
-  users.users.name = {
+  users.users.apotail = {
     isNormalUser = true;
     extraGroups = [ "wheel" ];
     packages = with pkgs; [
@@ -143,9 +171,6 @@
     nautilus
     nodejs
     pnpm
-    spotify
-    inkscape
-    obsidian
     yaru-theme
     gnome-text-editor
     gnome-calculator
@@ -160,10 +185,10 @@
     eww
     lm_sensors
     jq
-    rustup
     gcc
     wine64
     steam-run
+    amberol
   ];
 
   # LLM
@@ -191,12 +216,18 @@
     "image/bmp" = "org.gnome.Loupe.desktop";
     "image/tiff" = "org.gnome.Loupe.desktop";
     "image/webp" = "org.gnome.Loupe.desktop";
+    "audio/wav" = [ "amberol.desktop" ];
+    "audio/x-wav" = [ "amberol.desktop" ];
+    "audio/mpeg" = [ "amberol.desktop" ];
+    "audio/mp3" = [ "amberol.desktop" ];
+    "audio/flac" = [ "amberol.desktop" ];
   };
 
   fonts = {
     packages = with pkgs; [
       noto-fonts
       noto-fonts-cjk-sans
+      noto-fonts-cjk-serif
       noto-fonts-color-emoji
       nerd-fonts.jetbrains-mono
       roboto

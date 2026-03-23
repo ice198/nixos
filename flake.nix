@@ -34,7 +34,7 @@
               useGlobalPkgs = true;
               useUserPackages = true;
               extraSpecialArgs = { inherit inputs; };
-              users.name = { pkgs, ... }: {
+              users.user = { pkgs, ... }: {
                 imports = [ ./home.nix ];
               };
             };
