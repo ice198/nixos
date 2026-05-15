@@ -9,24 +9,55 @@
 {
   imports = [
     ./hardware-configuration.nix
+    inputs.silentSDDM.nixosModules.default
   ];
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-  boot.plymouth.enable = true;
   boot.kernelParams = [
     "quiet"
-    "splash"
-    "loglevel=3"
+    "loglevel=0"
     "rd.udev.log_level=3"
     "udev.log_priority=3"
+    "vt.global_cursor_default=0"
+    "rd.systemd.show_status=false"
+    "systemd.show_status=false"
+    "systemd.log_level=emerg"
   ];
+  systemd.settings.Manager = {
+    ShowStatus = "no";
+    StatusUnitFormat = "none";
+  };
   boot.consoleLogLevel = 0;
   boot.initrd.verbose = false;
   boot.loader.timeout = 0; # Hide generation
+  boot.initrd.systemd.enable = true;
 
   networking.hostName = "nixos";
   networking.networkmanager.enable = true;
+
+  # Firewall
+  networking.firewall.allowedTCPPorts = [
+    5173
+    4321
+    3000
+    80
+  ];
+
+  # MariaDB
+  #services.mysql = {
+  #  enable = true;
+  #  package = pkgs.mariadb;
+  #  ensureDatabases = [ "testdb" ];
+  #  ensureUsers = [
+  #    {
+  #      name = "testuser";
+  #      ensurePermissions = {
+  #        "testdb.*" = "ALL PRIVILEGES";
+  #      };
+  #    }
+  #  ];
+  #};
 
   # Graphics
   hardware.graphics = {
@@ -43,7 +74,6 @@
 
   time.timeZone = "Asia/Tokyo";
 
-  # Enable Japanese
   i18n.inputMethod = {
     enable = true;
     type = "fcitx5";
@@ -76,6 +106,9 @@
       LC_COLLATE = "en_US.UTF8";
     };
   };
+  environment.variables = {
+    GTK_IM_MODULE = lib.mkForce ""; # Hide message
+  };
 
   services.xserver.xkb = {
     layout = "jp";
@@ -88,18 +121,47 @@
   };
 
   # Login Manager
-  programs.regreet = {
+  #programs.regreet = {
+  #  enable = true;
+  #  settings = {
+  #    background = {
+  #      path = "/etc/nixos/wallpaper.jpg";
+  #      fit = "Cover";
+  #    };
+  #  };
+  #};
+  system.activationScripts.sddmAvatar = {
+    text = ''
+      mkdir -p /var/lib/AccountsService/icons
+      cp ${./wallpaper.jpg} /var/lib/AccountsService/icons/apotail
+      chmod 644 /var/lib/AccountsService/icons/apotail
+    '';
+  };
+  programs.silentSDDM = {
     enable = true;
+    theme = "everforest";
     settings = {
-      background = {
-        path = "/etc/nixos/wallpaper.jpg";
-        fit = "Cover";
+      General.scale = 1.5;
+      "LockScreen.Clock" = {
+        position = "top-center";
+        format = "h:mm";
+        font-family = "Roboto Medium";
+        font-size = 80;
+        font-weight = 800;
+      };
+      "LockScreen.Date" = {
+        format = "yyyy/M/d ddd";
+        font-family = "Roboto Medium";
+        font-size = 18;
+        margin-top = 3;
       };
     };
   };
 
   # Window Manager
+  nixpkgs.overlays = [ inputs.niri.overlays.niri ];
   programs.niri.enable = true;
+  programs.niri.package = pkgs.niri-unstable;
 
   # lock screen
   programs.hyprlock.enable = true;
@@ -113,24 +175,52 @@
   # User
   users.users.apotail = {
     isNormalUser = true;
-    extraGroups = [ "wheel" ];
+    extraGroups = [
+      "wheel"
+      "docker"
+    ];
     packages = with pkgs; [
       tree
     ];
-    shell = pkgs.zsh;
+    shell = pkgs.nushell;
   };
 
   # For steam
   programs.xwayland.enable = true;
 
+  # LLM
+  #services.ollama = {
+  #  enable = true;
+  #  loadModels = [
+  #    "llama3.2:3b"
+  #    "llama3.1:8b"
+  #    "deepseek-r1:14b"
+  #    "qwen2.5-coder:14b"
+  #  ];
+  #};
+
+  # Docker
+  virtualisation.docker = {
+    enable = true;
+    daemon.settings = {
+      dns = [
+        "1.1.1.1"
+        "8.8.8.8"
+      ];
+      log-driver = "journald";
+      storage-driver = "overlay2";
+    };
+  };
+
   # Apps
   nixpkgs.config.allowUnfree = true;
   programs.firefox.enable = true;
-  programs.zsh.enable = true;
+  #programs.zsh.enable = true;
   programs.steam.enable = true;
   documentation.nixos.enable = false; # Hide document
   environment.systemPackages = with pkgs; [
     xwayland-satellite
+    adwaita-icon-theme
     wayland
     pulseaudio
     helix
@@ -141,39 +231,29 @@
     btop
     fastfetch
     nautilus
-    nodejs
-    pnpm
-    spotify
-    inkscape
-    obsidian
     yaru-theme
-    gnome-text-editor
     gnome-calculator
-    gnome-system-monitor
+    #gnome-system-monitor
     gnome-disk-utility
     gnome-characters
     gnome-font-viewer
     loupe
     evince
+    resources
+    planify
+    localsend
     inputs.awww.packages.${pkgs.stdenv.hostPlatform.system}.awww
     imagemagick
     eww
     lm_sensors
     jq
-    rustup
     gcc
     wine64
     steam-run
+    amberol
+    libreoffice-fresh
+    libnotify
   ];
-
-  # LLM
-  services.ollama = {
-    enable = true;
-    loadModels = [
-      "llama3.2:3b"
-      "deepseek-r1:14b"
-    ];
-  };
 
   # Set dafault Apps
   xdg.mime.enable = true;
@@ -191,23 +271,58 @@
     "image/bmp" = "org.gnome.Loupe.desktop";
     "image/tiff" = "org.gnome.Loupe.desktop";
     "image/webp" = "org.gnome.Loupe.desktop";
+    "audio/wav" = [ "amberol.desktop" ];
+    "audio/x-wav" = [ "amberol.desktop" ];
+    "audio/mpeg" = [ "amberol.desktop" ];
+    "audio/mp3" = [ "amberol.desktop" ];
+    "audio/flac" = [ "amberol.desktop" ];
+    "text/plain" = "dev.zed.Zed.desktop";
+    "text/x-python" = "dev.zed.Zed.desktop";
+    "text/x-csrc" = "dev.zed.Zed.desktop";
+    "text/x-chdr" = "dev.zed.Zed.desktop";
+    "text/x-c++src" = "dev.zed.Zed.desktop";
+    "text/x-java" = "dev.zed.Zed.desktop";
+    "text/x-rust" = "dev.zed.Zed.desktop";
+    "text/x-shellscript" = "dev.zed.Zed.desktop";
+    "text/x-script.python" = "dev.zed.Zed.desktop";
+    "text/javascript" = "dev.zed.Zed.desktop";
+    "text/typescript" = "dev.zed.Zed.desktop";
+    "text/x-lua" = "dev.zed.Zed.desktop";
+    "text/x-makefile" = "dev.zed.Zed.desktop";
+    "text/markdown" = "dev.zed.Zed.desktop";
+    "text/x-markdown" = "dev.zed.Zed.desktop";
+    "text/css" = "dev.zed.Zed.desktop";
+    "text/xml" = "dev.zed.Zed.desktop";
+    "text/yaml" = "dev.zed.Zed.desktop";
+    "text/x-yaml" = "dev.zed.Zed.desktop";
+    "text/x-toml" = "dev.zed.Zed.desktop";
+    "application/json" = "dev.zed.Zed.desktop";
+    "application/x-yaml" = "dev.zed.Zed.desktop";
+    "application/xml" = "dev.zed.Zed.desktop";
+    "application/javascript" = "dev.zed.Zed.desktop";
+    "application/x-sh" = "dev.zed.Zed.desktop";
+    "application/x-shellscript" = "dev.zed.Zed.desktop";
+    "application/toml" = "dev.zed.Zed.desktop";
   };
 
   fonts = {
     packages = with pkgs; [
       noto-fonts
       noto-fonts-cjk-sans
+      noto-fonts-cjk-serif
       noto-fonts-color-emoji
       nerd-fonts.jetbrains-mono
       roboto
       inter
       google-fonts
+      ipaexfont
     ];
 
     fontDir.enable = true;
 
     fontconfig = {
       defaultFonts = {
+        sansSerif = [ "Noto Sans CJK JP" ];
         serif = [
           "Noto Serif CJK JP"
           "Noto Color Emoji"
@@ -224,4 +339,9 @@
   ];
 
   system.stateVersion = "26.05";
+
+  # added
+  nixpkgs.config.permittedInsecurePackages = [
+    "openssl-1.1.1w"
+  ];
 }

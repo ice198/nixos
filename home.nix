@@ -15,6 +15,95 @@
   home.homeDirectory = "/home/apotail";
   home.stateVersion = "26.05";
 
+  # Notification
+  services.dunst = {
+    enable = true;
+
+    settings = {
+      global = {
+        font = "Noto Sans";
+        corner_radius = 12;
+        frame_width = 1;
+        padding = 16;
+        horizontal_padding = 16;
+        icon_size = 48;
+        origin = "top-right";
+        offset = "8x35";
+        width = 350;
+        height = 300;
+        transparency = 10;
+        stack_duplicates = false;
+        gap_size = 5;
+        notification_limit = 12;
+        show_indicators = false;
+        icon_corner_radius = 6;
+      };
+
+      urgency_low = {
+        background = "#2D353B";
+        foreground = "#D3C6AA";
+        frame_color = "#859289";
+        timeout = 6;
+      };
+
+      urgency_normal = {
+        background = "#2D353B";
+        foreground = "#D3C6AA";
+        frame_color = "#859289";
+        timeout = 8;
+      };
+
+      urgency_critical = {
+        background = "#2D353B";
+        foreground = "#D3C6AA";
+        frame_color = "#E67E80";
+        timeout = 0;
+      };
+    };
+  };
+
+  # Set dark mode
+  dconf.settings = {
+    "org/gnome/desktop/interface" = {
+      color-scheme = "prefer-dark";
+    };
+  };
+
+  # Hide titlebar buttons
+  dconf.settings = {
+    "org/gnome/desktop/wm/preferences" = {
+      button-layout = ":";
+    };
+  };
+
+  # Packages
+  home.packages = with pkgs; [
+    rustc
+    cargo
+    rustfmt
+    clippy
+    rust-analyzer
+    cargo-watch
+    cargo-edit
+    restic
+    hdparm
+    typst
+    python3
+    inkscape
+    obsidian
+    godot
+    go
+    drawio
+    deno
+    brave
+    claude-code
+    opencode
+    zellij
+    discord-ptb
+    slack
+    inputs.codex-cli-nix.packages.${pkgs.stdenv.hostPlatform.system}.default
+  ];
+
   # Cursor theme
   home.pointerCursor = {
     name = "Yaru";
@@ -28,78 +117,389 @@
   programs.walker = {
     enable = true;
     runAsService = true;
-    config = {
-      theme = "default";
+    config.theme = "everforest";
+    themes."everforest" = {
+      style = ''
+        @define-color window_bg_color #2D353B;
+        @define-color accent_bg_color #859289;
+        @define-color theme_fg_color #D3C6AA;
+        @define-color error_bg_color #E67E80;
+        @define-color error_fg_color #514045;
+
+        * {
+          all: unset;
+        }
+
+        popover {
+          background: lighter(@window_bg_color);
+          border: 1px solid darker(@accent_bg_color);
+          border-radius: 18px;
+          padding: 10px;
+        }
+
+        .normal-icons {
+          -gtk-icon-size: 16px;
+        }
+
+        .large-icons {
+          -gtk-icon-size: 32px;
+        }
+
+        scrollbar {
+          opacity: 0;
+        }
+
+        .box-wrapper {
+          box-shadow:
+            0 19px 38px rgba(0, 0, 0, 0.3),
+            0 15px 12px rgba(0, 0, 0, 0.22);
+          background: @window_bg_color;
+          padding: 20px;
+          border-radius: 20px;
+          border: 1px solid darker(@accent_bg_color);
+        }
+
+        .preview-box,
+        .elephant-hint,
+        .placeholder {
+          color: @theme_fg_color;
+        }
+
+        .box {
+        }
+
+        .search-container {
+          border-radius: 10px;
+        }
+
+        .input placeholder {
+          opacity: 0.5;
+        }
+
+        .input selection {
+          background: lighter(lighter(lighter(@window_bg_color)));
+        }
+
+        .input {
+          caret-color: @theme_fg_color;
+          background: lighter(@window_bg_color);
+          padding: 10px;
+          color: @theme_fg_color;
+        }
+
+        .input:focus,
+        .input:active {
+        }
+
+        .content-container {
+        }
+
+        .placeholder {
+        }
+
+        .scroll {
+        }
+
+        .list {
+          color: @theme_fg_color;
+        }
+
+        child {
+        }
+
+        .item-box {
+          border-radius: 10px;
+          padding: 10px;
+        }
+
+        .item-quick-activation {
+          background: alpha(@accent_bg_color, 0.25);
+          border-radius: 5px;
+          padding: 10px;
+        }
+
+        /* child:hover .item-box, */
+        child:selected .item-box,
+        row:selected .item-box {
+          background: alpha(@accent_bg_color, 0.25);
+        }
+
+        .item-text-box {
+        }
+
+        .item-subtext {
+          font-size: 12px;
+          opacity: 0.5;
+        }
+
+        .providerlist .item-subtext {
+          font-size: unset;
+          opacity: 0.75;
+        }
+
+        .item-image-text {
+          font-size: 28px;
+        }
+
+        .preview {
+          border: 1px solid alpha(@accent_bg_color, 0.25);
+          /* padding: 10px; */
+          border-radius: 10px;
+          color: @theme_fg_color;
+        }
+
+        .calc .item-text {
+          font-size: 24px;
+        }
+
+        .calc .item-subtext {
+        }
+
+        .symbols .item-image {
+          font-size: 24px;
+        }
+
+        .todo.done .item-text-box {
+          opacity: 0.25;
+        }
+
+        .todo.urgent {
+          font-size: 24px;
+        }
+
+        .todo.active {
+          font-weight: bold;
+        }
+
+        .bluetooth.disconnected {
+          opacity: 0.5;
+        }
+
+        .preview .large-icons {
+          -gtk-icon-size: 64px;
+        }
+
+        .keybinds {
+          padding-top: 10px;
+          border-top: 1px solid lighter(@window_bg_color);
+          font-size: 12px;
+          color: @theme_fg_color;
+        }
+
+        .global-keybinds {
+        }
+
+        .item-keybinds {
+        }
+
+        .keybind {
+        }
+
+        .keybind-button {
+          opacity: 0.5;
+        }
+
+        .keybind-button:hover {
+          opacity: 0.75;
+        }
+
+        .keybind-bind {
+          text-transform: lowercase;
+          opacity: 0.35;
+        }
+
+        .keybind-label {
+          padding: 2px 4px;
+          border-radius: 4px;
+          border: 1px solid @theme_fg_color;
+        }
+
+        .error {
+          padding: 10px;
+          background: @error_bg_color;
+          color: @error_fg_color;
+        }
+
+        :not(.calc).current {
+          font-style: italic;
+        }
+
+        .preview-content.archlinuxpkgs,
+        .preview-content.dnfpackages {
+          font-family: monospace;
+        }
+      '';
     };
   };
 
   # Shell
-  programs.zsh = {
-    enable = true;
-    enableCompletion = true;
-    autosuggestion.enable = true;
-    syntaxHighlighting.enable = true;
+  #programs.zsh = {
+  #  enable = true;
+  #  enableCompletion = true;
+  #  autosuggestion.enable = true;
+  #  syntaxHighlighting.enable = true;
+  #};
+
+  programs = {
+    nushell = {
+      enable = true;
+      extraConfig = ''
+        let carapace_completer = {|spans|
+        carapace $spans.0 nushell ...$spans | from json
+        }
+        $env.config = {
+         show_banner: false,
+         completions: {
+         case_sensitive: false # case-sensitive completions
+         quick: true    # set to false to prevent auto-selecting completions
+         partial: true    # set to false to prevent partial filling of the prompt
+         algorithm: "fuzzy"    # prefix or fuzzy
+         external: {
+         # set to false to prevent nushell looking into $env.PATH to find more suggestions
+             enable: true 
+         # set to lower can improve completion performance at the cost of omitting some options
+             max_results: 100 
+             completer: $carapace_completer # check 'carapace_completer' 
+           }
+         }
+        } 
+        $env.PATH = ($env.PATH | 
+        split row (char esep) |
+        prepend /home/myuser/.apps |
+        append /usr/bin/env
+        )
+      '';
+      shellAliases = {
+        vi = "hx";
+        vim = "hx";
+        nano = "hx";
+      };
+    };
+    carapace.enable = true;
+    carapace.enableNushellIntegration = true;
+
+    starship = {
+      enable = true;
+      enableNushellIntegration = true;
+      settings = {
+        add_newline = true;
+        character = {
+          success_symbol = "[❯](bold green)";
+          error_symbol = "[❯](bold red)";
+        };
+      };
+    };
   };
 
   # Git
   programs.git = {
     enable = true;
     settings = {
-      user = {
-        name = "name";
-        email = "name@gmail.com";
-      };
       init.defaultBranch = "main";
     };
   };
 
   # Terminal
-  programs.ghostty = {
-    enable = true;
-    settings = {
-      theme = "Everforest Dark Hard";
-      background-opacity = 0.95;
-      background-blur = true;
-      window-padding-x = 8;
-      window-padding-y = 8;
-      window-padding-balance = true;
-      font-family = "JetBrainsMonoNL Nerd Font Mono";
-      font-size = 12;
-      font-style-bold = false;
-      font-style-italic = false;
-      font-style-bold-italic = false;
-    };
-  };
-
-  # or Alacritty
-  #programs.alacritty = {
+  #programs.ghostty = {
   #  enable = true;
   #  settings = {
-  #    window = {
-  #      decorations = "none";
-  #	     opacity = 0.8;
-  #        padding = {
-  #          x = 8;
-  #          y = 8;
-  #        };
-  #      };
-  #      font = {
-  #        normal = {
-  #          family = "JetBrainsMono Nerd Font";
-  #          style = "Regular";
-  #        };
-  #      size = 12.0;
-  #    };
+  #    theme = "Everforest Dark Hard";
+  #theme = "Everblush";
+  #    background-opacity = 0.85;
+  #    background-blur = true;
+  #    window-padding-x = 8;
+  #    window-padding-y = 8;
+  #    window-padding-balance = true;
+  #    font-family = [
+  #      "JetBrainsMonoNL Nerd Font Mono"
+  #      "IPAexGothic"
+  #      "Noto Sans CJK JP"
+  #    ];
+  #    font-size = 12;
+  #    font-style-bold = false;
+  #    font-style-italic = false;
+  #    font-style-bold-italic = false;
   #  };
   #};
 
-  programs.starship = {
+  # or Alacritty
+  programs.alacritty = {
     enable = true;
-    enableZshIntegration = true;
+    theme = "everforest_dark_hard";
     settings = {
-      add_newline = true;
-      scan_timeout = 100;
+      window = {
+        decorations = "none";
+        opacity = 0.95;
+        padding = {
+          x = 8;
+          y = 8;
+        };
+      };
+      font = {
+        normal = {
+          family = "JetBrainsMono Nerd Font";
+          style = "Regular";
+        };
+        size = 12.0;
+      };
     };
+  };
+
+  # Hide icons for walker
+  xdg.desktopEntries."org.fcitx.fcitx5-qt6-gui-wrapper" = {
+    name = "fcitx5-qt6-gui-wrapper";
+    noDisplay = true;
+    exec = "false";
+  };
+  xdg.desktopEntries."org.fcitx.Fcitx5" = {
+    name = "Fcitx 5";
+    noDisplay = true;
+    exec = "false";
+  };
+  xdg.desktopEntries."org.fcitx.fcitx5-migrator" = {
+    name = "fcitx5-migrator";
+    noDisplay = true;
+    exec = "false";
+  };
+  xdg.desktopEntries."kcm_fcitx5" = {
+    name = "kcm_fcitx5";
+    noDisplay = true;
+    exec = "false";
+  };
+  xdg.desktopEntries."fcitx5-configtool" = {
+    name = "Fcitx5 Config";
+    noDisplay = true;
+    exec = "false";
+  };
+  xdg.desktopEntries."org.fcitx.fcitx5-config-qt" = {
+    name = "fcitx5-config-qt";
+    noDisplay = true;
+    exec = "false";
+  };
+  xdg.desktopEntries."org.fcitx.fcitx5-qt5-gui-wrapper" = {
+    name = "fcitx5-qt5-gui-wrapper";
+    noDisplay = true;
+    exec = "false";
+  };
+  xdg.desktopEntries."fcitx5-wayland-launcher" = {
+    name = "fcitx5-wayland-launcher";
+    noDisplay = true;
+    exec = "false";
+  };
+  xdg.desktopEntries."kbd-layout-viewer5" = {
+    name = "kbd-layout-viewer5";
+    noDisplay = true;
+    exec = "false";
+  };
+  xdg.desktopEntries."discord-ptb" = {
+    name = "Discord";
+    exec = "DiscordPTB";
+    icon = "discord-ptb";
+    terminal = false;
+    categories = [
+      "Network"
+      "InstantMessaging"
+    ];
   };
 
   # Text Editor
@@ -107,10 +507,13 @@
     enable = true;
     settings = {
       theme = "base16_transparent";
-      editor.cursor-shape = {
-        normal = "block";
-        insert = "bar";
-        select = "underline";
+      editor = {
+        auto-format = true;
+        cursor-shape = {
+          normal = "block";
+          insert = "bar";
+          select = "underline";
+        };
       };
     };
     languages.language = [
@@ -124,6 +527,17 @@
         auto-format = true;
         formatter.command = lib.getExe pkgs.rustfmt;
         language-servers = [ "rust-analyzer" ];
+      }
+      {
+        name = "kdl";
+        auto-format = true;
+        formatter = {
+          command = lib.getExe pkgs.kdlfmt;
+          args = [
+            "format"
+            "-"
+          ];
+        };
       }
     ];
     themes = {
@@ -160,46 +574,10 @@
 
   # Web Apps
   programs.google-chrome.enable = true;
-  # Youtube
-  xdg.desktopEntries.youtube = {
-    name = "YouTube";
-    exec = "google-chrome --app=https://www.youtube.com";
-    icon = "/etc/nixos/icons/youtube.png";
-    type = "Application";
-    categories = [ "Network" ];
-  };
-
-  # ChatGPT
-  xdg.desktopEntries.chatgpt = {
-    name = "ChatGPT";
-    exec = "google-chrome --app=https://chatgpt.com";
-    icon = "/etc/nixos/icons/chatgpt.png";
-    type = "Application";
-    categories = [ "Utility" ];
-  };
-
-  # X
-  xdg.desktopEntries.x = {
-    name = "X";
-    exec = "google-chrome --app=https://x.com";
-    icon = "/etc/nixos/icons/x.png";
-    type = "Application";
-    categories = [ "Network" ];
-  };
-
-  # Bluesky
-  xdg.desktopEntries.bluesky = {
-    name = "Bluesky";
-    exec = "google-chrome --app=https://bsky.app";
-    icon = "/etc/nixos/icons/bluesky.png";
-    type = "Application";
-    categories = [ "Network" ];
-  };
 
   # Hide icon
   xdg = {
     enable = true;
-
     desktopEntries = {
       btop = {
         name = "btop";
@@ -212,304 +590,19 @@
   gtk = {
     enable = true;
     theme = {
-      name = "Yaru-blue";
+      name = "Yaru-prussiangreen";
       package = pkgs.yaru-theme;
     };
     iconTheme = {
-      name = "Yaru-blue";
+      name = "Yaru-prussiangreen";
       package = pkgs.yaru-theme;
     };
   };
 
-  # WM config (niri)
+  # niri
   xdg.configFile."niri/config.kdl" = {
     force = true;
-    text = ''
-      spawn-at-startup "awww-daemon"
-      spawn-at-startup "awww" "img" "/etc/nixos/wallpaper.jpg" "--transition-type" "none"
-      spawn-at-startup "awww-daemon" "-n" "overlay"
-      spawn-at-startup "awww" "img" "-n" "overlay" "/etc/nixos/blur-wallpaper.jpg" "--transition-type" "none"
-      spawn-at-startup "eww" "daemon"
-      spawn-at-startup "/home/apotail/.local/bin/eww-start"
-
-      prefer-no-csd
-
-      // Make workspaces four times smaller than normal in the overview.
-      overview {
-        zoom 0.6
-      }
-
-      cursor {
-        xcursor-theme "Yaru"
-        xcursor-size 24
-      }
-
-      input {
-        keyboard {
-            xkb {
-            }
-            numlock
-        }
-
-        touchpad {
-            tap
-            natural-scroll
-        }
-
-        mouse {
-        }
-
-        trackpoint {
-        }
-        focus-follows-mouse max-scroll-amount="0%"
-      }
-
-        output "eDP-1" {
-          mode "1920x1080@120.030"
-          scale 2
-          transform "normal"
-          position x=1280 y=1
-        }
-
-        layout {
-          gaps 8
-          center-focused-column "never"
-
-          preset-column-widths {
-            proportion 0.33333
-            proportion 0.5
-            proportion 0.66667
-          }
-
-          default-column-width { proportion 0.5; }
-
-          focus-ring {
-            width 1
-            active-color "#00000096"
-            inactive-color "#00000096"
-          }
-
-          border {
-            // off
-            width 2
-            active-color "#83c092CC"
-            inactive-color "#475258CC"
-            urgent-color "#9b000096"
-          }
-
-          shadow {
-            softness 30
-            spread 5
-            offset x=0 y=5
-            color "#0007"
-          }
-
-          // Custom
-          struts {
-            top 28
-          }
-
-          tab-indicator {
-            on
-            corner-radius 5
-          }
-
-          background-color "transparent" // to show wallpaper when overview
-        }
-
-        hotkey-overlay {
-        }
-
-        screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
-
-        animations {
-        }
-
-        // Open the Firefox picture-in-picture player as floating by default.
-        window-rule {
-          match app-id=r#"firefox$"# title="^Picture-in-Picture$"
-          open-floating true
-        }
-
-        window-rule {
-          match app-id=r#"^org\.keepassxc\.KeePassXC$"#
-          match app-id=r#"^org\.gnome\.World\.Secrets$"#
-
-          block-out-from "screen-capture"
-        }
-
-        window-rule {
-          geometry-corner-radius 10
-          clip-to-geometry true
-          draw-border-with-background false // Remove window background color
-        }
-
-        layer-rule {
-          match namespace="^awww-daemonoverlay$"
-          place-within-backdrop true
-        }
-
-        binds {
-          Mod+B hotkey-overlay-title="Open a Browser: firefox" { spawn "firefox"; }
-          Mod+N hotkey-overlay-title="Open a File Explorer" { spawn "nautilus"; }
-
-          Mod+Shift+Slash { show-hotkey-overlay; }
-
-          Mod+T hotkey-overlay-title="Open a Terminal: ghostty" { spawn "ghostty"; }
-          Mod+Space hotkey-overlay-title="Run an Application: walker" { spawn "walker"; }
-          Mod+Alt+L hotkey-overlay-title="Lock the Screen: hyprlock" { spawn "hyprlock"; }
-
-          Super+Alt+S allow-when-locked=true hotkey-overlay-title=null { spawn-sh "pkill orca || exec orca"; }
-
-          XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.1+ -l 1.0"; }
-          XF86AudioLowerVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.1-"; }
-          XF86AudioMute        allow-when-locked=true { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"; }
-          XF86AudioMicMute     allow-when-locked=true { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"; }
-
-          XF86AudioPlay        allow-when-locked=true { spawn-sh "playerctl play-pause"; }
-          XF86AudioStop        allow-when-locked=true { spawn-sh "playerctl stop"; }
-          XF86AudioPrev        allow-when-locked=true { spawn-sh "playerctl previous"; }
-          XF86AudioNext        allow-when-locked=true { spawn-sh "playerctl next"; }
-
-          XF86MonBrightnessUp allow-when-locked=true { spawn "brightnessctl" "--class=backlight" "set" "+10%"; }
-          XF86MonBrightnessDown allow-when-locked=true { spawn "brightnessctl" "--class=backlight" "set" "10%-"; }
-
-          Mod+O repeat=false { toggle-overview; }
-
-          Mod+C repeat=false { close-window; }
-
-          Mod+Left  { focus-column-left; }
-          Mod+Down  { focus-window-down; }
-          Mod+Up    { focus-window-up; }
-          Mod+Right { focus-column-right; }
-          Mod+H     { focus-column-left; }
-          Mod+J     { focus-window-down; }
-          Mod+K     { focus-window-up; }
-          Mod+L     { focus-column-right; }
-
-          Mod+Ctrl+Left  { move-column-left; }
-          Mod+Ctrl+Down  { move-window-down; }
-          Mod+Ctrl+Up    { move-window-up; }
-          Mod+Ctrl+Right { move-column-right; }
-          Mod+Ctrl+H     { move-column-left; }
-          Mod+Ctrl+J     { move-window-down; }
-          Mod+Ctrl+K     { move-window-up; }
-          Mod+Ctrl+L     { move-column-right; }
-
-          Mod+Home { focus-column-first; }
-          Mod+End  { focus-column-last; }
-          Mod+Ctrl+Home { move-column-to-first; }
-          Mod+Ctrl+End  { move-column-to-last; }
-
-          Mod+Shift+Left  { focus-monitor-left; }
-          Mod+Shift+Down  { focus-monitor-down; }
-          Mod+Shift+Up    { focus-monitor-up; }
-          Mod+Shift+Right { focus-monitor-right; }
-          Mod+Shift+H     { focus-monitor-left; }
-          Mod+Shift+J     { focus-monitor-down; }
-          Mod+Shift+K     { focus-monitor-up; }
-          Mod+Shift+L     { focus-monitor-right; }
-
-          Mod+Shift+Ctrl+Left  { move-column-to-monitor-left; }
-          Mod+Shift+Ctrl+Down  { move-column-to-monitor-down; }
-          Mod+Shift+Ctrl+Up    { move-column-to-monitor-up; }
-          Mod+Shift+Ctrl+Right { move-column-to-monitor-right; }
-          Mod+Shift+Ctrl+H     { move-column-to-monitor-left; }
-          Mod+Shift+Ctrl+J     { move-column-to-monitor-down; }
-          Mod+Shift+Ctrl+K     { move-column-to-monitor-up; }
-          Mod+Shift+Ctrl+L     { move-column-to-monitor-right; }
-
-          Mod+Page_Down      { focus-workspace-down; }
-          Mod+Page_Up        { focus-workspace-up; }
-          Mod+U              { focus-workspace-down; }
-          Mod+I              { focus-workspace-up; }
-          Mod+Ctrl+Page_Down { move-column-to-workspace-down; }
-          Mod+Ctrl+Page_Up   { move-column-to-workspace-up; }
-          Mod+Ctrl+U         { move-column-to-workspace-down; }
-          Mod+Ctrl+I         { move-column-to-workspace-up; }
-
-          Mod+Shift+Page_Down { move-workspace-down; }
-          Mod+Shift+Page_Up   { move-workspace-up; }
-          Mod+Shift+U         { move-workspace-down; }
-          Mod+Shift+I         { move-workspace-up; }
-
-          Mod+WheelScrollDown      cooldown-ms=150 { focus-workspace-down; }
-          Mod+WheelScrollUp        cooldown-ms=150 { focus-workspace-up; }
-          Mod+Ctrl+WheelScrollDown cooldown-ms=150 { move-column-to-workspace-down; }
-          Mod+Ctrl+WheelScrollUp   cooldown-ms=150 { move-column-to-workspace-up; }
-
-          Mod+WheelScrollRight      { focus-column-right; }
-          Mod+WheelScrollLeft       { focus-column-left; }
-          Mod+Ctrl+WheelScrollRight { move-column-right; }
-          Mod+Ctrl+WheelScrollLeft  { move-column-left; }
-
-          Mod+Shift+WheelScrollDown      { focus-column-right; }
-          Mod+Shift+WheelScrollUp        { focus-column-left; }
-          Mod+Ctrl+Shift+WheelScrollDown { move-column-right; }
-          Mod+Ctrl+Shift+WheelScrollUp   { move-column-left; }
-
-          Mod+1 { focus-workspace 1; }
-          Mod+2 { focus-workspace 2; }
-          Mod+3 { focus-workspace 3; }
-          Mod+4 { focus-workspace 4; }
-          Mod+5 { focus-workspace 5; }
-          Mod+6 { focus-workspace 6; }
-          Mod+7 { focus-workspace 7; }
-          Mod+8 { focus-workspace 8; }
-          Mod+9 { focus-workspace 9; }
-          Mod+Ctrl+1 { move-column-to-workspace 1; }
-          Mod+Ctrl+2 { move-column-to-workspace 2; }
-          Mod+Ctrl+3 { move-column-to-workspace 3; }
-          Mod+Ctrl+4 { move-column-to-workspace 4; }
-          Mod+Ctrl+5 { move-column-to-workspace 5; }
-          Mod+Ctrl+6 { move-column-to-workspace 6; }
-          Mod+Ctrl+7 { move-column-to-workspace 7; }
-          Mod+Ctrl+8 { move-column-to-workspace 8; }
-          Mod+Ctrl+9 { move-column-to-workspace 9; }
-
-          Mod+BracketLeft  { consume-or-expel-window-left; }
-          Mod+BracketRight { consume-or-expel-window-right; }
-
-          Mod+Comma  { consume-window-into-column; }
-
-          Mod+Period { expel-window-from-column; }
-
-          Mod+R { switch-preset-column-width; }
-
-          Mod+Shift+R { switch-preset-window-height; }
-          Mod+Ctrl+R { reset-window-height; }
-          Mod+F { maximize-column; }
-          Mod+Shift+F { fullscreen-window; }
-
-          Mod+Ctrl+F { expand-column-to-available-width; }
-
-          Mod+Q { center-column; }
-
-          Mod+Ctrl+C { center-visible-columns; }
-
-          Mod+Minus { set-column-width "-10%"; }
-          Mod+Equal { set-column-width "+10%"; }
-
-          Mod+Shift+Minus { set-window-height "-10%"; }
-          Mod+Shift+Equal { set-window-height "+10%"; }
-
-          Mod+V       { toggle-window-floating; }
-          Mod+Shift+V { switch-focus-between-floating-and-tiling; }
-
-          Mod+W { toggle-column-tabbed-display; }
-
-          Print { screenshot; }
-          Ctrl+Print { screenshot-screen; }
-          Alt+Print { screenshot-window; }
-
-          Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
-
-          Mod+Shift+E { quit; }
-          Ctrl+Alt+Delete { quit; }
-
-          Mod+Shift+P { power-off-monitors; }
-        }
-    '';
+    source = ./niri/config.kdl;
   };
 
   # eww script for niri
@@ -543,6 +636,46 @@
 
       [GroupOrder]
       0=Default
+    '';
+  };
+
+  xdg.configFile."fcitx5/conf/classicui.conf" = {
+    force = true;
+    text = ''
+      # Vertical Candidate List
+      Vertical Candidate List=False
+      # Use mouse wheel to go to prev or next page
+      WheelForPaging=True
+      # Font
+      Font="Sans 10"
+      # Menu Font
+      MenuFont="Sans 10"
+      # Tray Font
+      TrayFont="Sans Bold 10"
+      # Tray Label Outline Color
+      TrayOutlineColor=#000000
+      # Tray Label Text Color
+      TrayTextColor=#ffffff
+      # Prefer Text Icon
+      PreferTextIcon=False
+      # Show Layout Name In Icon
+      ShowLayoutNameInIcon=True
+      # Use input method language to display text
+      UseInputMethodLanguageToDisplayText=True
+      # Theme
+      Theme=plasma
+      # Dark Theme
+      DarkTheme=plasma
+      # Follow system light/dark color scheme
+      UseDarkTheme=False
+      # Follow system accent color if it is supported by theme and desktop
+      UseAccentColor=True
+      # Use Per Screen DPI on X11
+      PerScreenDPI=False
+      # Force font DPI on Wayland
+      ForceWaylandDPI=0
+      # Enable fractional scale under Wayland
+      EnableFractionalScale=True
     '';
   };
 
