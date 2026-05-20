@@ -31,7 +31,6 @@
   boot.consoleLogLevel = 0;
   boot.initrd.verbose = false;
   boot.loader.timeout = 0;
-  #boot.initrd.systemd.enable = true;
 
   networking.hostName = "nixos";
   networking.networkmanager.enable = true;
@@ -70,21 +69,17 @@
     VK_ICD_FILENAMES = "/run/opengl-driver/share/vulkan/icd.d/radeon_icd.x86_64.json";
   };
 
-  # For Nautilus
-  services.gvfs.enable = true;
-
   time.timeZone = "Asia/Tokyo";
 
-  i18n.inputMethod = {
-    enable = true;
-    type = "fcitx5";
-    fcitx5.addons = with pkgs; [
-      fcitx5-mozc
-      fcitx5-gtk
-    ];
-  };
-
   i18n = {
+    inputMethod = {
+      enable = true;
+      type = "fcitx5";
+      fcitx5.addons = with pkgs; [
+        fcitx5-mozc
+        fcitx5-gtk
+      ];
+    };
     defaultLocale = "en_US.UTF-8";
     supportedLocales = [
       "ja_JP.UTF-8/UTF-8"
@@ -193,9 +188,9 @@
   # Apps
   nixpkgs.config.allowUnfree = true;
   documentation.nixos.enable = false; # hide NixOS documentation
-  #programs.firefox.enable = true;
   programs.steam.enable = true;
   programs.xwayland.enable = true; # for steam
+  services.gvfs.enable = true; # for nautilus
   environment.systemPackages = with pkgs; [
     inputs.awww.packages.${pkgs.stdenv.hostPlatform.system}.awww
     eww
@@ -316,9 +311,4 @@
   ];
 
   system.stateVersion = "26.05";
-
-  # added
-  nixpkgs.config.permittedInsecurePackages = [
-    "openssl-1.1.1w"
-  ];
 }
