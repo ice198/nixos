@@ -1,62 +1,63 @@
-My development environment
-
-## 1. NixOSをダウンロード
-[NixOSのダウンロードページ](https://nixos.org/download/)から`Minimal ISO image`をダウンロード
-
-## 2. balenaEtcherをダウンロード
-[balenaEtcher](https://etcher.balena.io/#download-etcher)から`Etcher`をダウンロード
-
-## 3. Live USBを作成
-Etcherを使ってNixOS isoファイルをUSBに焼く
-
-## 4. インストール
-ライブUSBを読み込んでNixOS Installer(LTS)を起動
+# NixOS Installation Guide
+ 
+## 1. Download NixOS
+ 
+Download the `Minimal ISO image` from the [NixOS download page](https://nixos.org/download/).
+ 
+---
+ 
+## 2. Create a Live USB
+ 
+If you are on a Linux distro, refer to the section on creating a live USB from the CLI on Linux.
+For other operating systems or if you prefer a GUI, [balenaEtcher](https://etcher.balena.io/#download-etcher) is a good option.
+On Windows, [Rufus](https://rufus.ie/) is also well known.
+ 
+---
+ 
+## 3. Install
+ 
+Boot from the live USB and launch **NixOS Installer (Linux LTS)**.
+ 
+### Partition the Disk
+ 
 ```sh
-sudo -i  # ルートユーザーに移動
-lsblk  # ディスクの名前を確認
-cfdisk /dev/XXX  # XXXにはインストール先のディスク名を指定
+sudo -i        # Switch to root user
+lsblk          # Check disk names
+cfdisk /dev/XXX  # Replace XXX with the name of the target disk
 ```
-Select label typeはgptを選択
-
-Newを選択してPartition sizeを1Gに設定
-Typeを選択してEFI Systemに設定
-
-Free spaceのNewを選択してPartition sizeを4Gに設定
-Typeを選択してLinux swapに設定
-
-Free spaceのNewを選択してエンターキーを2回押し、残りのスペースをルートパーティションに使用
-
-Writeを選択し、yesと入力
-Quitを選択して終了
-
+ 
+- Select `gpt` for **Select label type**
+- Select `New` → set **Partition size** to `1G` → select `Type` → set to `EFI System`
+- Select `New` on free space → set **Partition size** to `4G` → select `Type` → set to `Linux swap`
+- Select `New` on free space → press Enter twice to use the remaining space as the root partition
+- Select `Write`, type `yes`, then select `Quit`
+### Format and Mount
+ 
 ```sh
-lsblk  # 正しくパーティションを作成できてるか確認
-mkfs.ext4 -L nixos /dev/XXX3  # ルートパーティションを初期化
-mkswap -L swap /dev/XXX2  # スワップ領域を初期化
-mkfs.fat -F 32 -n boot /dev/XXX1  # ブートパーティションを初期化
-
-# マウント
-mount /dev/XXX3 /mnt  # ルートパーティション
-mount --mkdir /dev/XXX1 /mnt/boot  # ブートパーティション
-swapon /dev/XXX2  # スワップ
-lsblk  # 確認
-
-nixos-generate-config --root /mnt  # NixOSの設定ファイルを作成
+lsblk                          # Verify partitions were created correctly
+mkfs.ext4 -L nixos /dev/XXX3   # Format root partition
+mkswap -L swap /dev/XXX2        # Initialize swap
+mkfs.fat -F 32 -n boot /dev/XXX1  # Format boot partition
+ 
+# Mount
+mount /dev/XXX3 /mnt            # Root partition
+mount --mkdir /dev/XXX1 /mnt/boot  # Boot partition
+swapon /dev/XXX2                # Swap
+lsblk                          # Verify
+ 
+nixos-generate-config --root /mnt  # Generate NixOS config files
 vim /mnt/etc/nixos/configuration.nix
 ```
-
-configuration.nixを編集
+ 
+### Edit `configuration.nix`
+ 
 ```nix
-# 変更箇所のみ
-boot.loader.systemd-boot.enable = true;
-boot.loader.efi.canTouchEfiVariables = true;
-
+# Only the sections that need to be changed
 networking.hostName = "nixos";
-networking.networkmanager.enable = true;
  
 time.timeZone = "Asia/Tokyo";
-
-# 名前を変更して有効化
+ 
+# Replace "name" with your username
 users.users.name = {
     isNormalUser = true;
     extraGroups = [ "wheel" ];
@@ -65,47 +66,49 @@ users.users.name = {
     ];
   };
  
-# Login Manager
 services.displayManager.sddm = {
     enable = true;
     wayland.enable = true;
 };
-  
-programs.firefox.enable = true;  # 有効化
+ 
+programs.firefox.enable = true;
 programs.niri.enable = true;
-
-# アプリを追加
+ 
 environment.systemPackages = with pkgs; [
     helix
     wget
-    ghostty
+    alacritty
     git
 ];
-
-system.stateVersion = "26.05";
 ```
-
+ 
+### Run the Installer
+ 
 ```sh
 nixos-install
 ```
-
-`New password:`と表示されるのでパスワードを設定
+ 
+When prompted with `New password:`, set a password for root.
+ 
 ```sh
-nixos-enter --root /mnt -c 'passwd name'  # 設定したパスワードを入力
+nixos-enter --root /mnt -c 'passwd name'
+# Enter the password you want to set
 reboot
 ```
-
+ 
 ---
-
-
+ 
+## 4. Customize
+ 
 ```sh
 sudo rm -rf /etc/nixos
 sudo git clone https://github.com/ice198/nixos.git /etc/nixos
 ```
-
-Modify `configuration.nix`
+ 
+### Edit `configuration.nix`
+ 
 ```nix
-# Replace name with your username
+# Replace "name" with your username
 users.users.name = {
     isNormalUser = true;
     extraGroups = [ "wheel" ];
@@ -115,22 +118,24 @@ users.users.name = {
     shell = pkgs.zsh;
   };
 ```
-
-Modify `flake.nix`
+ 
+### Edit `flake.nix`
+ 
 ```nix
-# Replace name with your username
+# Replace "name" with your username
 users.name = { pkgs, ... }: {
   imports = [ ./home.nix ];
 };
 ```
-
-Modify `home.nix`
+ 
+### Edit `home.nix`
+ 
 ```nix
-# Replace name with your username
+# Replace "name" with your username
 home.username = "name";
 home.homeDirectory = "/home/name";
-
-# Replace the name and email address with your own
+ 
+# Replace name and email with your own
 programs.git = {
   enable = true;
   settings = {
@@ -141,8 +146,11 @@ programs.git = {
     init.defaultBranch = "main";
   };
 };
-
-# Change the screen resolution, refresh rate, and magnification in niri config to those of your monitor.
+ 
+# Change "name" in the niri config below to your username
+spawn-at-startup "/home/name/.local/bin/eww-start"
+ 
+# Set your monitor resolution, refresh rate, and scale
 output "eDP-1" {
   mode "1920x1080@120.030"
   scale 2
@@ -150,20 +158,19 @@ output "eDP-1" {
   position x=1280 y=1
 }
 ```
-
-And build
+ 
+### Build
+ 
+Run the following commands to build:
+ 
 ```sh
+su
+cd /etc/nixos
+nixos-generate-config
+git config --global user.name "myname"
+git config --global user.email "myname@gmail.com"
+git add .
+git commit -m "first commit"
 nixos-rebuild switch --flake /etc/nixos#nixos
 reboot
-```
-
-```sh
-# Wallpaper
-# https://github.com/basecamp/omarchy/blob/master/themes/everforest/backgrounds/1-tree-tops.jpg
-
-# blur wallpaper command
-# magick input.jpg -gaussian-blur 0x8 output.jpg
-
-# and copy
-# sudo cp ~/Desktop/wallpaper.jpg /etc/nixos/
 ```
