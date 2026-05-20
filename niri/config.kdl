@@ -1,7 +1,7 @@
 spawn-at-startup "awww-daemon"
-spawn-at-startup "awww" "img" "/etc/nixos/wallpaper.jpg" "--transition-type" "none"
+spawn-at-startup "awww" "img" "/etc/nixos/wallpapers/wallpaper.jpg" "--transition-type" "none"
 spawn-at-startup "awww-daemon" "-n" "overlay"
-spawn-at-startup "awww" "img" "-n" "overlay" "/etc/nixos/blur-wallpaper.jpg" "--transition-type" "none"
+spawn-at-startup "awww" "img" "-n" "overlay" "/etc/nixos/wallpapers/blur-wallpaper.jpg" "--transition-type" "none"
 spawn-at-startup "eww" "daemon"
 spawn-at-startup "/home/apotail/.local/bin/eww-start"
 prefer-no-csd

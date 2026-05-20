@@ -433,6 +433,19 @@
     };
   };
 
+  programs.firefox = {
+    enable = true;
+    profiles.default = {
+      settings = {
+        "sidebar.verticalTabs" = true;
+        "sidebar.visibility" = "always-show";
+        "sidebar.main.tools" = "history,bookmarks";
+        "browser.newtabpage.activity-stream.showSponsored" = false;
+        "browser.newtabpage.activity-stream.showSponsoredTopSites" = false;
+      };
+    };
+  };
+
   # Hide icons for walker
   xdg.desktopEntries."org.fcitx.fcitx5-qt6-gui-wrapper" = {
     name = "fcitx5-qt6-gui-wrapper";
@@ -547,7 +560,48 @@
     };
   };
 
-  programs.zed-editor.enable = true;
+  programs.zed-editor = {
+    enable = true;
+
+    userSettings = {
+      cli_default_open_behavior = "existing_window";
+      diff_view_style = "unified";
+
+      project_panel.dock = "left";
+      outline_panel.dock = "left";
+      collaboration_panel.dock = "left";
+      git_panel.dock = "left";
+
+      agent = {
+        dock = "right";
+        favorite_models = [ ];
+        model_parameters = [ ];
+      };
+
+      telemetry = {
+        diagnostics = false;
+        metrics = false;
+      };
+
+      session.trust_all_worktrees = true;
+
+      icon_theme = "Zed (Default)";
+      ui_font_size = 16;
+      buffer_font_size = 15;
+      buffer_font_family = "JetBrainsMono Nerd Font";
+
+      theme = {
+        mode = "dark";
+        light = "One Light";
+        dark = "Everforest Dark Hard (material)";
+      };
+
+      soft_wrap = "none";
+
+      title_bar.show_sign_in = false;
+    };
+  };
+
   programs.google-chrome.enable = true;
 
   # Hide icon
@@ -731,7 +785,7 @@
 
       background {
         monitor =
-        path = /etc/nixos/wallpaper.jpg
+        path = /etc/nixos/wallpapers/wallpaper.jpg
         brightness = 0.8
         contrast = 1.0
         vibrancy = 0.2

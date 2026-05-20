@@ -125,7 +125,7 @@
   system.activationScripts.sddmAvatar = {
     text = ''
       mkdir -p /var/lib/AccountsService/icons
-      cp ${./wallpaper.jpg} /var/lib/AccountsService/icons/sam
+      cp ${./wallpapers/wallpaper.jpg} /var/lib/AccountsService/icons/sam
       chmod 644 /var/lib/AccountsService/icons/sam
     '';
   };
@@ -193,7 +193,7 @@
   # Apps
   nixpkgs.config.allowUnfree = true;
   documentation.nixos.enable = false; # hide NixOS documentation
-  programs.firefox.enable = true;
+  #programs.firefox.enable = true;
   programs.steam.enable = true;
   programs.xwayland.enable = true; # for steam
   environment.systemPackages = with pkgs; [
