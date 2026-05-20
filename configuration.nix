@@ -30,34 +30,35 @@
   };
   boot.consoleLogLevel = 0;
   boot.initrd.verbose = false;
-  boot.loader.timeout = 0; # Hide generation
-  boot.initrd.systemd.enable = true;
+  boot.loader.timeout = 0;
+  #boot.initrd.systemd.enable = true;
 
   networking.hostName = "nixos";
   networking.networkmanager.enable = true;
 
-  # Firewall
+  # Open port
   networking.firewall.allowedTCPPorts = [
     5173
     4321
     3000
+    3306
     80
   ];
 
   # MariaDB
-  #services.mysql = {
-  #  enable = true;
-  #  package = pkgs.mariadb;
-  #  ensureDatabases = [ "testdb" ];
-  #  ensureUsers = [
-  #    {
-  #      name = "testuser";
-  #      ensurePermissions = {
-  #        "testdb.*" = "ALL PRIVILEGES";
-  #      };
-  #    }
-  #  ];
-  #};
+  services.mysql = {
+    enable = true;
+    package = pkgs.mariadb;
+    ensureDatabases = [ "testdb" ];
+    ensureUsers = [
+      {
+        name = "testuser";
+        ensurePermissions = {
+          "testdb.*" = "ALL PRIVILEGES";
+        };
+      }
+    ];
+  };
 
   # Graphics
   hardware.graphics = {
@@ -83,8 +84,8 @@
     ];
   };
 
-  #i18n.defaultLocale = "en_US.UTF-8";
   i18n = {
+    defaultLocale = "en_US.UTF-8";
     supportedLocales = [
       "ja_JP.UTF-8/UTF-8"
       "en_US.UTF-8/UTF-8"
@@ -107,7 +108,7 @@
     };
   };
   environment.variables = {
-    GTK_IM_MODULE = lib.mkForce ""; # Hide message
+    GTK_IM_MODULE = lib.mkForce ""; # hide the message displayed at startup
   };
 
   services.xserver.xkb = {
@@ -120,21 +121,12 @@
     keyMap = "jp106";
   };
 
-  # Login Manager
-  #programs.regreet = {
-  #  enable = true;
-  #  settings = {
-  #    background = {
-  #      path = "/etc/nixos/wallpaper.jpg";
-  #      fit = "Cover";
-  #    };
-  #  };
-  #};
+  # Login manager
   system.activationScripts.sddmAvatar = {
     text = ''
       mkdir -p /var/lib/AccountsService/icons
-      cp ${./wallpaper.jpg} /var/lib/AccountsService/icons/apotail
-      chmod 644 /var/lib/AccountsService/icons/apotail
+      cp ${./wallpaper.jpg} /var/lib/AccountsService/icons/sam
+      chmod 644 /var/lib/AccountsService/icons/sam
     '';
   };
   programs.silentSDDM = {
@@ -158,12 +150,12 @@
     };
   };
 
-  # Window Manager
+  # Window manager
   nixpkgs.overlays = [ inputs.niri.overlays.niri ];
   programs.niri.enable = true;
   programs.niri.package = pkgs.niri-unstable;
 
-  # lock screen
+  # Screen locker
   programs.hyprlock.enable = true;
 
   # Audio
@@ -185,20 +177,6 @@
     shell = pkgs.nushell;
   };
 
-  # For steam
-  programs.xwayland.enable = true;
-
-  # LLM
-  #services.ollama = {
-  #  enable = true;
-  #  loadModels = [
-  #    "llama3.2:3b"
-  #    "llama3.1:8b"
-  #    "deepseek-r1:14b"
-  #    "qwen2.5-coder:14b"
-  #  ];
-  #};
-
   # Docker
   virtualisation.docker = {
     enable = true;
@@ -214,45 +192,44 @@
 
   # Apps
   nixpkgs.config.allowUnfree = true;
+  documentation.nixos.enable = false; # hide NixOS documentation
   programs.firefox.enable = true;
-  #programs.zsh.enable = true;
   programs.steam.enable = true;
-  documentation.nixos.enable = false; # Hide document
+  programs.xwayland.enable = true; # for steam
   environment.systemPackages = with pkgs; [
+    inputs.awww.packages.${pkgs.stdenv.hostPlatform.system}.awww
+    eww
+    wayland
     xwayland-satellite
     adwaita-icon-theme
-    wayland
+    yaru-theme
     pulseaudio
+
+    (lib.hiPrio pkgs.uutils-coreutils-noprefix) # use uutils instead of coreutils
     helix
     wget
     curl
+    xh
     git
     ripgrep
-    btop
     fastfetch
+    lm_sensors
+    jq
+    jaq
+    gcc
+    steam-run
+    wine64
+
     nautilus
-    yaru-theme
+    amberol
     gnome-calculator
-    #gnome-system-monitor
     gnome-disk-utility
     gnome-characters
     gnome-font-viewer
     loupe
-    evince
+    papers
     resources
-    planify
-    localsend
-    inputs.awww.packages.${pkgs.stdenv.hostPlatform.system}.awww
-    imagemagick
-    eww
-    lm_sensors
-    jq
-    gcc
-    wine64
-    steam-run
-    amberol
     libreoffice-fresh
-    libnotify
   ];
 
   # Set dafault Apps
@@ -263,7 +240,7 @@
     "x-scheme-handler/https" = "firefox.desktop";
     "x-scheme-handler/about" = "firefox.desktop";
     "x-scheme-handler/unknown" = "firefox.desktop";
-    "application/pdf" = "org.gnome.Evince.desktop";
+    "application/pdf" = "org.gnome.Papers.desktop";
     "image/png" = "org.gnome.Loupe.desktop";
     "image/jpeg" = "org.gnome.Loupe.desktop";
     "image/jpg" = "org.gnome.Loupe.desktop";

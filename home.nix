@@ -18,7 +18,6 @@
   # Notification
   services.dunst = {
     enable = true;
-
     settings = {
       global = {
         font = "Noto Sans";
@@ -76,7 +75,6 @@
     };
   };
 
-  # Packages
   home.packages = with pkgs; [
     rustc
     cargo
@@ -96,8 +94,6 @@
     drawio
     deno
     brave
-    claude-code
-    opencode
     zellij
     discord-ptb
     slack
@@ -333,13 +329,6 @@
   };
 
   # Shell
-  #programs.zsh = {
-  #  enable = true;
-  #  enableCompletion = true;
-  #  autosuggestion.enable = true;
-  #  syntaxHighlighting.enable = true;
-  #};
-
   programs = {
     nushell = {
       enable = true;
@@ -399,30 +388,29 @@
     };
   };
 
-  # Terminal
-  #programs.ghostty = {
-  #  enable = true;
-  #  settings = {
-  #    theme = "Everforest Dark Hard";
-  #theme = "Everblush";
-  #    background-opacity = 0.85;
-  #    background-blur = true;
-  #    window-padding-x = 8;
-  #    window-padding-y = 8;
-  #    window-padding-balance = true;
-  #    font-family = [
-  #      "JetBrainsMonoNL Nerd Font Mono"
-  #      "IPAexGothic"
-  #      "Noto Sans CJK JP"
-  #    ];
-  #    font-size = 12;
-  #    font-style-bold = false;
-  #    font-style-italic = false;
-  #    font-style-bold-italic = false;
-  #  };
-  #};
+  # Ghostty
+  # programs.ghostty = {
+  #   enable = true;
+  #   settings = {
+  #     theme = "Everforest Dark Hard";
+  #     background-opacity = 0.85;
+  #     background-blur = true;
+  #     window-padding-x = 8;
+  #     window-padding-y = 8;
+  #     window-padding-balance = true;
+  #     font-family = [
+  #       "JetBrainsMonoNL Nerd Font Mono"
+  #       "IPAexGothic"
+  #       "Noto Sans CJK JP"
+  #     ];
+  #     font-size = 12;
+  #     font-style-bold = false;
+  #     font-style-italic = false;
+  #     font-style-bold-italic = false;
+  #   };
+  # };
 
-  # or Alacritty
+  # Alacritty
   programs.alacritty = {
     enable = true;
     theme = "everforest_dark_hard";
@@ -539,6 +527,17 @@
           ];
         };
       }
+      {
+        name = "css";
+        auto-format = true;
+        formatter = {
+          command = lib.getExe pkgs.prettier;
+          args = [
+            "--parser"
+            "css"
+          ];
+        };
+      }
     ];
     themes = {
       autumn_night_transparent = {
@@ -548,31 +547,7 @@
     };
   };
 
-  # OBS
-  programs.obs-studio = {
-    enable = true;
-
-    # optional Nvidia hardware acceleration
-    package = (
-      pkgs.obs-studio.override {
-        cudaSupport = true;
-      }
-    );
-
-    plugins = with pkgs.obs-studio-plugins; [
-      wlrobs
-      obs-backgroundremoval
-      obs-pipewire-audio-capture
-      obs-vaapi # optional AMD hardware acceleration
-      obs-gstreamer
-      obs-vkcapture
-    ];
-  };
-
-  # Code Editor
   programs.zed-editor.enable = true;
-
-  # Web Apps
   programs.google-chrome.enable = true;
 
   # Hide icon
@@ -679,408 +654,15 @@
     '';
   };
 
-  # Bar
+  # Widget bar
   xdg.configFile."eww/eww.yuck" = {
     force = true;
-    text = ''
-      (deflisten workspaces
-        "~/.local/bin/eww-workspaces")
-
-      (defpoll time :interval "1s"
-        "date '+%-H:%M'")
-
-      (deflisten volume_icon :initial "󰖁" "~/.local/bin/eww-volume-icon")
-        (deflisten volume_text :initial "0%" "~/.local/bin/eww-volume-text")
-        (defpoll volume_visible :interval "99999s" "echo false")
-
-      (defpoll cpu :interval "2s"
-        "top -bn1 | grep 'Cpu(s)' | awk '{printf \"%d%%\", $2}'")
-
-      (defpoll mem :interval "2s"
-        "free | grep Mem | awk '{printf \"%d%%\", $3/$2 * 100}'")
-
-      (defpoll net_icon :interval "3s"
-        "~/.local/bin/eww-net-icon")
-
-
-
-      (defwidget workspace-btn [ws]
-        (eventbox
-          :onclick {"niri msg action focus-workspace " + jq(ws, ".id")}
-          (label
-            :class {jq(ws, ".is_active") == "true" ? "ws-label-active" : "ws-label"}
-            :text {jq(ws, ".idx")})))
-
-      (defwidget workspaces []
-        (box :class "ws-box"
-          :orientation "h"
-          :spacing 8
-          :space-evenly false
-          (for ws in {workspaces}
-            (workspace-btn :ws {ws}))))
-
-      (defwidget clock []
-        (centerbox :orientation "h"
-          :class "clock-box"
-          (box)
-          {time}
-          (box)))
-
-      (defwidget volume-widget []
-        (eventbox
-          :onclick "eww open-many --toggle volume-overlay-window volume-popup-window"
-          (box :class "vol-box" :spacing 6 :space-evenly false
-            (label :class "vol-icon" :text {volume_icon})
-            (label :class "sysinfo-text" :text {volume_text}))))
-
-      (defwidget volume-popup []
-        (box :class "vol-popup" :orientation "h" :spacing 8 :space-evenly false
-          (label :class "vol-icon" :text {volume_icon})
-            (scale
-              :class "vol-slider"
-              :orientation "h"
-              :min 0
-              :max 101
-              :value {replace(volume_text, "%", "")}
-              :onchange "wpctl set-volume @DEFAULT_AUDIO_SINK@ {}%")))
-
-      (defwidget volume-overlay []
-        (eventbox :onclick "eww close volume-popup-window && eww close volume-overlay-window"))
-
-      (defwidget cpu-widget []
-        (box :class "cpu-box" :spacing 6 :space-evenly false
-          (label :class "cpu-icon" :text "󰍛")
-          (label :class "sysinfo-text" :text {cpu})))
-
-      (defwidget mem-widget []
-        (box :class "mem-box" :spacing 6 :space-evenly false
-          (label :class "mem-icon" :text "")
-          (label :class "sysinfo-text" :text {mem})))
-
-      (defwidget net-widget []
-        (box :class "net-box" :spacing 6 :space-evenly false
-        (label :class "net-icon" :text {net_icon})))
-
-      (defwidget launcher []
-        (button :class "launcher-btn"
-          :onclick "eww open-many --toggle power-menu-overlay-window power-menu-window"
-          (label :text "󰐥" :halign "center" :valign "center")))
-
-      (defwidget power-menu []
-        (box :class "power-menu" :orientation "v" :spacing 0 :space-evenly false
-          (button :class "power-menu-item"
-            :onclick "eww close power-menu-window && eww close power-menu-overlay-window && walker &"
-            (box :spacing 10 :space-evenly false
-              (label :class "power-menu-icon" :text "󰀻")
-              (label :class "power-menu-text" :text "Show Apps")))
-          (box :class "power-menu-sep" :halign "fill")
-          (button :class "power-menu-item"
-            :onclick "eww close power-menu-window&& eww close power-menu-overlay-window && systemctl suspend"
-              (box :spacing 10 :space-evenly false
-                (label :class "power-menu-icon" :text "")
-                (label :class "power-menu-text" :text "Sleep")))
-          (button :class "power-menu-item"
-            :onclick "eww close power-menu-window && eww close power-menu-overlay-window && hyprlock &"
-              (box :spacing 10 :space-evenly false
-                (label :class "power-menu-icon" :text "󰌾")
-                (label :class "power-menu-text" :text "Lock Screen")))
-          (button :class "power-menu-item"
-            :onclick "eww close power-menu-window && eww close power-menu-overlay-window && reboot"
-              (box :spacing 10 :space-evenly false
-                (label :class "power-menu-icon" :text "")
-                (label :class "power-menu-text" :text "Restart")))
-          (button :class "power-menu-item power-menu-item-shutdown"
-            :onclick "eww close power-menu-window && eww close power-menu-overlay-window && shutdown now"
-            (box :spacing 10 :space-evenly false
-              (label :class "power-menu-icon" :text "󰐥")
-              (label :class "power-menu-text" :text "Shut Down")))))
-
-      (defwidget power-menu-overlay []
-        (eventbox :onclick "eww close power-menu-window && eww close power-menu-overlay-window"))
-
-
-
-      (defwindow workspaces-window
-        :monitor 0
-        :windowtype "dock"
-        :geometry (geometry :x "10px" :y "0%" :width "10px" :height "34px" :anchor "top left")
-        :reserve (struts :side "top" :distance "20px")
-        (workspaces))
-
-      (defwindow clock
-        :monitor 0
-        :windowtype "dock"
-        :geometry (geometry :x "0%" :y "0%" :width "65px" :height "34px" :anchor "top center")
-        :reserve (struts :side "top" :distance "20px")
-        (clock))
-
-      (defwindow volume-window
-        :monitor 0
-        :windowtype "dock"
-        :geometry (geometry :x "266px" :y "0%" :width "70px" :height "34px" :anchor "top right")
-        :reserve (struts :side "top" :distance "20px")
-        (volume-widget))
-
-      (defwindow volume-popup-window
-        :monitor 0
-        :windowtype "dock"
-        :geometry (geometry :x "200px" :y "35px" :width "200px" :height "40px" :anchor "top right")
-        (volume-popup))
-
-      (defwindow volume-overlay-window
-        :monitor 0
-        :windowtype "dock"
-        :geometry (geometry :x "0" :y "0" :width "100%" :height "100%")
-        (volume-overlay))
-
-      (defwindow cpu-window
-        :monitor 0
-        :windowtype "dock"
-        :geometry (geometry :x "188px" :y "0%" :width "70px" :height "34px" :anchor "top right")
-        :reserve (struts :side "top" :distance "20px")
-        (cpu-widget))
-
-      (defwindow mem-window
-        :monitor 0
-        :windowtype "dock"
-        :geometry (geometry :x "106px" :y "0%" :width "70px" :height "34px" :anchor "top right")
-        :reserve (struts :side "top" :distance "20px")
-        (mem-widget))
-
-      (defwindow net-window
-        :monitor 0
-        :windowtype "dock"
-        :geometry (geometry :x "58px" :y "0%" :width "40px" :height "34px" :anchor "top right")
-        :reserve (struts :side "top" :distance "20px")
-        (net-widget))
-
-      (defwindow launcher-window
-        :monitor 0
-        :windowtype "dock"
-        :geometry (geometry :x "10px" :y "0%" :width "40px" :height "34px" :anchor "top right")
-        :reserve (struts :side "top" :distance "20px")
-        (launcher))
-
-      (defwindow power-menu-window
-        :monitor 0
-        :windowtype "dock"
-        :geometry (geometry :x "6px" :y "35px" :width "220px" :height "10px" :anchor "top right")
-        (power-menu))
-
-      (defwindow power-menu-overlay-window
-        :monitor 0
-        :windowtype "dock"
-        :geometry (geometry :x "0" :y "0" :width "100%" :height "100%")
-        (power-menu-overlay))
-    '';
+    source = ./eww/eww.yuck;
   };
 
   xdg.configFile."eww/eww.css" = {
     force = true;
-    text = ''
-      window {
-        background: transparent;
-      }
-
-      .sysinfo-text {
-        font-family: 'Inter', sans-serif;
-        font-size: 13px;
-        color: #e0e0e0;
-      }
-
-      .ws-box {
-        margin: 4px 0;
-        padding: 0 10px;
-        background-color: rgba(20, 20, 20, 0.80);
-        border: 1px solid rgba(255, 255, 255, 0.10);
-        border-radius: 16px;
-      }
-
-      .ws-label {
-        min-width: 20px;
-        color: rgba(224, 224, 224, 0.5);
-        font-family: 'JetBrainsMono Nerd Font', monospace;
-        font-size: 13px;
-        padding: 2px 8px;
-        border-radius: 50%;
-      }
-
-      .ws-label-active {
-        min-width: 20px;
-        color: #e0e0e0;
-        font-family: 'JetBrainsMono Nerd Font', monospace;
-        font-size: 13px;
-        padding: 2px 8px;
-      }
-
-      .clock-box {
-        margin: 4px 0;
-        background-color: rgba(20, 20, 20, 0.80);
-        color: #e0e0e0;
-        font-family: 'Roboto', sans-serif;
-        font-size: 16px;
-        border: 1px solid rgba(255, 255, 255, 0.10);
-        border-radius: 16px;
-      }
-
-      centerbox {
-        padding: 0 10px;
-      }
-
-      .vol-box {
-        margin: 4px 0;
-        padding: 0 12px;
-        background-color: rgba(20, 20, 20, 0.80);
-        border: 1px solid rgba(255, 255, 255, 0.10);
-        border-radius: 16px;
-      }
-
-      .vol-icon {
-        font-family: 'JetBrainsMono Nerd Font', monospace;
-        font-size: 16px;
-        color: #e0e0e0;
-        padding-right: 2px;
-      }
-
-      .vol-popup {
-        background-color: #30302e;
-        border: 1px solid #64635f;
-        border-radius: 12px;
-        padding: 8px 12px;
-      }
-
-      .vol-slider {
-        min-width: 120px;
-      }
-
-      .vol-slider trough {
-        background-color: #3a3a47;
-        border-radius: 4px;
-        min-height: 6px;
-        min-width: 120px;
-      }
-
-      .vol-slider trough highlight {
-        background-color: #7aa2f7;
-        border-radius: 4px;
-        min-height: 6px;
-      }
-
-      .vol-slider slider {
-        background-color: #ffffff;
-        border-radius: 50%;
-        min-width: 14px;
-        min-height: 14px;
-        margin: -4px 0;
-      }
-
-      .cpu-box {
-        margin: 4px 0;
-        padding: 0 12px;
-        background-color: rgba(20, 20, 20, 0.80);
-        border: 1px solid rgba(255, 255, 255, 0.10);
-        border-radius: 16px;
-      }
-
-      .cpu-icon {
-        font-family: 'JetBrainsMono Nerd Font', monospace;
-        font-size: 17px;
-        color: #e0e0e0;
-        padding-right: 2px;
-      }
-
-      .mem-box {
-        margin: 4px 0;
-        padding: 0 12px;
-        background-color: rgba(20, 20, 20, 0.80);
-        border: 1px solid rgba(255, 255, 255, 0.10);
-        border-radius: 16px;
-      }
-
-      .mem-icon {
-        font-family: 'JetBrainsMono Nerd Font', monospace;
-        font-size: 14px;
-        color: #e0e0e0;
-        padding-right: 7px;
-      }
-
-      .net-box {
-        margin: 4px 0;
-        padding: 0 12px;
-        background-color: rgba(20, 20, 20, 0.80);
-        border: 1px solid rgba(255, 255, 255, 0.10);
-        border-radius: 16px;
-      }
-
-      .net-icon {
-        font-family: 'JetBrainsMono Nerd Font', monospace;
-        font-size: 16px;
-        color: #e0e0e0;
-      }
-
-      .launcher-btn {
-        background: rgba(20, 20, 20, 0.80);
-        border: 1px solid rgba(255, 255, 255, 0.10);
-        border-radius: 16px;
-        border: none;
-        padding: 0 2px;
-        margin: 4px 0;
-        box-shadow: none;
-        outline: none;
-        -gtk-outline-radius: 0;
-        font-size: 17px;
-        font-family: 'JetBrainsMono Nerd Font', monospace;
-        color: #e0e0e0;
-      }
-
-      .power-menu {
-        background-color: #30302e;
-        border: 1px solid #64635f;
-        border-radius: 14px;
-        padding: 4px 4px;
-
-            }
-
-      .power-menu-item {
-        background: transparent;
-        border: none;
-        border-radius: 9px;
-        padding: 3px 8px;
-        box-shadow: none;
-        outline: none;
-        -gtk-outline-radius: 0;
-        min-width: 160px;
-      }
-
-      .power-menu-item:hover {
-        background-color: #1f1e1d;
-      }
-
-      .power-menu-icon {
-        font-family: 'JetBrainsMono Nerd Font', monospace;
-        font-size: 14px;
-        color: #E6E6E6;
-        min-width: 20px;
-      }
-
-      .power-menu-text {
-        font-family: 'Noto Sans', sans-serif;
-        font-size: 14px;
-        color: #faf9f5;
-      }
-
-      .power-menu-item-shutdown .power-menu-icon,
-      .power-menu-item-shutdown .power-menu-text {
-        color: #FF6B6B;
-      }
-
-      .power-menu-sep {
-        background-color: #3a3a47;
-        min-height: 1px;
-        margin: 4px 10px;
-        padding: 0;
-      }
-    '';
+    source = ./eww/eww.css;
   };
 
   # eww sh files

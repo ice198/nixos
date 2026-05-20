@@ -7,19 +7,14 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    # Launcher
-    elephant.url = "github:abenz1267/elephant";
+    elephant.url = "github:abenz1267/elephant"; # for walker
     walker = {
       url = "github:abenz1267/walker";
       inputs.elephant.follows = "elephant";
     };
-    # Wallpaper
     awww.url = "git+https://codeberg.org/LGFae/awww";
-    # niri
     niri.url = "github:sodiboo/niri-flake";
-    # Codex CLI
     codex-cli-nix.url = "github:sadjow/codex-cli-nix";
-
     silentSDDM = {
       url = "github:uiriansan/SilentSDDM";
       inputs.nixpkgs.follows = "nixpkgs";
