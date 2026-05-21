@@ -209,8 +209,6 @@
     ripgrep
     fastfetch
     lm_sensors
-    jq
-    jaq
     gcc
     steam-run
     wine64

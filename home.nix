@@ -637,13 +637,7 @@
   # eww script for niri
   home.file.".local/bin/eww-start" = {
     executable = true;
-    text = ''
-      #!/usr/bin/env bash
-      eww open-many clock cpu-window mem-window launcher-window workspaces-window date-window volume-window net-window cputemp-window
-      sleep 0.3
-      eww update volume_text="$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{v=int($2*100); print v "%"}')"
-      eww update volume_icon="$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | grep -q '0\.00' && echo '󰖁' || echo '󰕾')"
-    '';
+    source = ./scripts/eww-start.nu;
   };
 
   # Fcitx config
@@ -722,54 +716,19 @@
   # eww sh files
   home.file.".local/bin/eww-net-icon" = {
     executable = true;
-    text = ''
-      #!/bin/sh
-      iface=$(ip route get 8.8.8.8 2>/dev/null | awk '{for(i=1;i<=NF;i++) if($i=="dev") print $(i+1)}')
-      if [ -z "$iface" ]; then
-        echo ""
-      elif echo "$iface" | grep -qE '^(eth|en|eno|enp)'; then
-        echo "󰌗"
-      else
-        echo ""
-      fi
-    '';
+    source = ./scripts/eww-net-icon.nu;
   };
   home.file.".local/bin/eww-workspaces" = {
     executable = true;
-    text = ''
-      #!/usr/bin/env bash
-      get_workspaces() {
-        niri msg -j workspaces | jq -c '[.[] | {id: .id, idx: .idx, is_active: .is_active}] | sort_by(.idx)'
-      }
-
-      get_workspaces
-
-      niri msg -j event-stream | while IFS= read -r line; do
-        if echo "$line" | grep -qE '"WorkspaceActivated"|"WorkspacesChanged"|"WorkspaceActiveWindowChanged"'; then
-          get_workspaces
-        fi
-      done
-    '';
+    source = ./scripts/eww-workspaces.nu;
   };
   home.file.".local/bin/eww-volume-icon" = {
     executable = true;
-    text = ''
-      #!/usr/bin/env bash
-      wpctl get-volume @DEFAULT_AUDIO_SINK@ | grep -q '0\.00' && echo '󰖁' || echo '󰕾'
-      pactl subscribe 2>/dev/null | grep --line-buffered "Event 'change' on sink" | while read -r _; do
-        wpctl get-volume @DEFAULT_AUDIO_SINK@ | grep -q '0\.00' && echo '󰖁' || echo '󰕾'
-      done
-    '';
+    source = ./scripts/eww-volume-icon.nu;
   };
   home.file.".local/bin/eww-volume-text" = {
     executable = true;
-    text = ''
-      #!/usr/bin/env bash
-      wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{v=int($2*100); print v "%"}'
-      pactl subscribe 2>/dev/null | grep --line-buffered "Event 'change' on sink" | while read -r _; do
-        wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{v=int($2*100); print v "%"}'
-      done
-    '';
+    source = ./scripts/eww-volume-text.nu;
   };
 
   # lock screen
