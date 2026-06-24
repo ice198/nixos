@@ -15,6 +15,8 @@
     awww.url = "git+https://codeberg.org/LGFae/awww";
     niri.url = "github:sodiboo/niri-flake";
     codex-cli-nix.url = "github:sadjow/codex-cli-nix";
+    llm-agents.url = "github:numtide/llm-agents.nix";
+    flake-utils.url = "github:numtide/flake-utils";
     silentSDDM = {
       url = "github:uiriansan/SilentSDDM";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -28,6 +30,8 @@
       home-manager,
       niri,
       codex-cli-nix,
+      llm-agents,
+      flake-utils,
       ...
     }:
     let
@@ -42,6 +46,11 @@
         modules = [
           ./configuration.nix
           niri.nixosModules.niri
+          {
+            environment.systemPackages = [
+              llm-agents.packages.x86_64-linux.agent-browser
+            ];
+          }
           home-manager.nixosModules.home-manager
           {
             home-manager = {
@@ -53,12 +62,31 @@
           }
         ];
       };
+    }
 
-      # Dev shell with Codex CLI
-      devShells.${system}.default = pkgs.mkShell {
-        buildInputs = [
-          codex-cli-nix.packages.${system}.default
-        ];
-      };
-    };
+    //
+
+      flake-utils.lib.eachDefaultSystem (
+        system:
+        let
+          pkgs = import nixpkgs { inherit system; };
+        in
+        {
+          devShells.default = pkgs.mkShell {
+            nativeBuildInputs = with pkgs; [
+              nodejs_latest
+              playwright-driver.browsers
+            ];
+
+            buildInputs = [
+              codex-cli-nix.packages.${system}.default
+            ];
+
+            shellHook = ''
+              export PLAYWRIGHT_BROWSERS_PATH=${pkgs.playwright-driver.browsers}
+              export PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=true
+            '';
+          };
+        }
+      );
 }

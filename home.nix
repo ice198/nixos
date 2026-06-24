@@ -92,9 +92,9 @@
     godot
     go
     drawio
+    nodejs
     deno
     brave
-    zellij
     discord-ptb
     slack
     inputs.codex-cli-nix.packages.${pkgs.stdenv.hostPlatform.system}.default
@@ -442,6 +442,30 @@
         "sidebar.main.tools" = "history,bookmarks";
         "browser.newtabpage.activity-stream.showSponsored" = false;
         "browser.newtabpage.activity-stream.showSponsoredTopSites" = false;
+        "dom.webgpu.enabled" = true;
+        "dom.webgpu.unsafe-powerful-device.enabled" = true;
+        "gfx.webrender.all" = true;
+      };
+      search = {
+        force = true;
+        default = "ddg";
+        engines = {
+          "ddg" = {
+            urls = [
+              {
+                template = "https://duckduckgo.com/";
+                params = [
+                  {
+                    name = "q";
+                    value = "{searchTerms}";
+                  }
+                ];
+              }
+            ];
+            icon = "https://duckduckgo.com/favicon.ico";
+            definedAliases = [ "@ddg" ];
+          };
+        };
       };
     };
   };
@@ -587,8 +611,9 @@
 
       icon_theme = "Zed (Default)";
       ui_font_size = 16;
-      buffer_font_size = 15;
+      buffer_font_size = 14.5;
       buffer_font_family = "JetBrainsMono Nerd Font";
+      buffer_line_height = "standard";
 
       theme = {
         mode = "dark";
@@ -601,8 +626,6 @@
       title_bar.show_sign_in = false;
     };
   };
-
-  programs.google-chrome.enable = true;
 
   # Hide icon
   xdg = {

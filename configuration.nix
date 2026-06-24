@@ -35,6 +35,9 @@
   networking.hostName = "nixos";
   networking.networkmanager.enable = true;
 
+  hardware.bluetooth.enable = true;
+  hardware.bluetooth.powerOnBoot = true;
+
   # Open port
   networking.firewall.allowedTCPPorts = [
     5173
@@ -42,6 +45,7 @@
     3000
     3306
     80
+    19999
   ];
 
   # MariaDB
@@ -63,6 +67,10 @@
   hardware.graphics = {
     enable = true;
     enable32Bit = true;
+    extraPackages = with pkgs; [
+      vulkan-loader
+      vulkan-validation-layers
+    ];
   };
   hardware.amdgpu.opencl.enable = true;
   environment.variables = {
@@ -222,8 +230,25 @@
     loupe
     papers
     resources
+    planify
     libreoffice-fresh
+    (chromium.override {
+      commandLineArgs = [
+        "--enable-features=AcceleratedVideoEncoder,VaapiOnNvidiaGPUs,VaapiIgnoreDriverChecks,Vulkan,DefaultANGLEVulkan,VulkanFromANGLE"
+        "--enable-features=VaapiIgnoreDriverChecks,VaapiVideoDecoder,PlatformHEVCDecoderSupport"
+        "--enable-features=UseMultiPlaneFormatForHardwareVideo"
+        "--ignore-gpu-blocklist"
+        "--enable-zero-copy"
+      ];
+    })
+    google-chrome
+    vscode
   ];
+
+  programs.appimage = {
+    enable = true;
+    binfmt = true;
+  };
 
   # Set dafault Apps
   xdg.mime.enable = true;
@@ -274,6 +299,11 @@
     "application/x-shellscript" = "dev.zed.Zed.desktop";
     "application/toml" = "dev.zed.Zed.desktop";
   };
+
+  # Make the bash script work
+  systemd.tmpfiles.rules = [
+    "L+ /bin/bash - - - - ${pkgs.bash}/bin/bash"
+  ];
 
   fonts = {
     packages = with pkgs; [

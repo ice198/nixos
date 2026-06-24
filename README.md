@@ -4,25 +4,45 @@
  
 Download the `Minimal ISO image` from the [NixOS download page](https://nixos.org/download/).
  
----
- 
 ## 2. Create a Live USB
- 
-If you are on a Linux distro, refer to the section on creating a live USB from the CLI on Linux.
-For other operating systems or if you prefer a GUI, [balenaEtcher](https://etcher.balena.io/#download-etcher) is a good option.
-On Windows, [Rufus](https://rufus.ie/) is also well known.
- 
----
- 
+
+1. Check the USB drive name with `lsblk`
+
+```sh
+lsblk
+```
+The output will look like this:
+```
+NAME        MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
+sda           8:0    1  14.5G  0 disk
+├─sda1        8:1    1   1.5G  0 part 
+└─sda2        8:2    1     3M  0 part
+nvme0n1     259:0    0 500.0G  0 disk
+```
+In this case, sda is the USB drive.
+
+2. Unmount the USB
+```sh
+sudo umount -l /dev/sda1
+sudo umount -l /dev/sda2
+```
+
+3. Write the ISO file
+```sh
+sudo dd if=/home/user/Downloads/xxxxx.iso of=/dev/sda bs=4M status=progress conv=fsync
+```
+
+4. Remove the drive when done
+
 ## 3. Install
  
 Boot from the live USB and launch **NixOS Installer (Linux LTS)**.
  
-### Partition the Disk
+1. Partition the Disk
  
 ```sh
-sudo -i        # Switch to root user
-lsblk          # Check disk names
+sudo -i          # Switch to root user
+lsblk            # Check disk names
 cfdisk /dev/XXX  # Replace XXX with the name of the target disk
 ```
  
@@ -31,20 +51,28 @@ cfdisk /dev/XXX  # Replace XXX with the name of the target disk
 - Select `New` on free space → set **Partition size** to `4G` → select `Type` → set to `Linux swap`
 - Select `New` on free space → press Enter twice to use the remaining space as the root partition
 - Select `Write`, type `yes`, then select `Quit`
-### Format and Mount
+
+2. Format and Mount
  
 ```sh
-lsblk                          # Verify partitions were created correctly
-mkfs.ext4 -L nixos /dev/XXX3   # Format root partition
-mkswap -L swap /dev/XXX2        # Initialize swap
-mkfs.fat -F 32 -n boot /dev/XXX1  # Format boot partition
+lsblk  # Verify partitions were created correctly
+
+mkfs.btrfs -L nixos /dev/XXX3
+mkswap -L swap /dev/XXX2
+mkfs.fat -F 32 -n boot /dev/XXX1
  
-# Mount
-mount /dev/XXX3 /mnt            # Root partition
-mount --mkdir /dev/XXX1 /mnt/boot  # Boot partition
-swapon /dev/XXX2                # Swap
-lsblk                          # Verify
- 
+mount /dev/XXX3 /mnt
+btrfs subvolume create /mnt/@
+btrfs subvolume create /mnt/@home
+umount /mnt
+
+mount -o subvol=@,compress=zstd,noatime /dev/XXX3 /mnt
+mount --mkdir -o subvol=@home,compress=zstd,noatime /dev/XXX3 /mnt/home
+mount --mkdir /dev/XXX1 /mnt/boot
+swapon /dev/XXX2
+
+lsblk
+
 nixos-generate-config --root /mnt  # Generate NixOS config files
 vim /mnt/etc/nixos/configuration.nix
 ```
@@ -56,6 +84,18 @@ vim /mnt/etc/nixos/configuration.nix
 networking.hostName = "nixos";
  
 time.timeZone = "Asia/Tokyo";
+
+fileSystems."/" = {
+  device = "/dev/disk/by-label/nixos";
+  fsType = "btrfs";
+  options = [ "subvol=@" "compress=zstd" "noatime" ];
+};
+
+fileSystems."/home" = {
+  device = "/dev/disk/by-label/nixos";
+  fsType = "btrfs";
+  options = [ "subvol=@home" "compress=zstd" "noatime" ];
+};
  
 # Replace "name" with your username
 users.users.name = {
