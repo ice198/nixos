@@ -48,26 +48,6 @@
     };
   };
 
-  #fileSystems."/" = {
-  #  device = "/dev/disk/by-label/nixos";
-  #  fsType = "btrfs";
-  #  options = [
-  #    "subvol=@"
-  #    "compress=zstd"
-  #    "noatime"
-  #  ];
-  #};
-
-  #fileSystems."/home" = {
-  #  device = "/dev/disk/by-label/nixos";
-  #  fsType = "btrfs";
-  #  options = [
-  #    "subvol=@home"
-  #    "compress=zstd"
-  #    "noatime"
-  #  ];
-  #};
-  #
   # services.snapper = {
   #snapshotInterval = "daily";
   #cleanupInterval = "1d";

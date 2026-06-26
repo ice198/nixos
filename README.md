@@ -77,13 +77,35 @@ git clone https://github.com/ice198/nixos.git /mnt/etc/nixos
 rm /mnt/etc/nixos/hardware-configuration.nix
 
 nixos-generate-config --root /mnt  # Generate hardware-configuration.nix
+```
+
+```sh
+vim /mnt/etc/nixos/hardware-configuration.nix  
+```
+```nix
+# add aptions
+fileSystems."/" =
+  { device = "/dev/disk/by-uuid/f081324c-3153-48e7-8896-cdbbfa8e6ea2";
+    fsType = "btrfs";
+    options = [ "subvol=@" "compress=zstd" "noatime" ];
+  };
+
+fileSystems."/home" =
+  { device = "/dev/disk/by-uuid/f081324c-3153-48e7-8896-cdbbfa8e6ea2";
+    fsType = "btrfs";
+    options = [ "subvol=@home" "compress=zstd" "noatime" ];
+  };
+
+swapDevices = [ { device = "/dev/disk/by-label/swap"; } ];
+```
+```sh
 nixos-install --flake /mnt/etc/nixos#nixos
 ```
 
 When prompted with `New password:`, set a password for root.
 
 ```sh
-nixos-enter --root /mnt -c 'passwd name'
+nixos-enter --root /mnt -c 'passwd sam'
 # Enter the password you want to set
 reboot
 ```
