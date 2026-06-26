@@ -1,4 +1,4 @@
-# NixOS Installation Guide
+# Installation Guide
  
 ## 1. Download NixOS
  
@@ -74,18 +74,14 @@ swapon /dev/XXX2
 lsblk
 
 git clone https://github.com/ice198/nixos.git /mnt/etc/nixos
+rm /mnt/etc/nixos/hardware-configuration.nix
 
-nixos-generate-config --root /mnt  # Generate NixOS config files
-```
- 
-### Run the Installer
- 
-```sh
+nixos-generate-config --root /mnt  # Generate hardware-configuration.nix
 nixos-install --flake /mnt/etc/nixos#nixos
 ```
- 
+
 When prompted with `New password:`, set a password for root.
- 
+
 ```sh
 nixos-enter --root /mnt -c 'passwd name'
 # Enter the password you want to set
@@ -104,15 +100,8 @@ output "HDMI-A-1" {
     position x=0 y=0
 }
 ```
- 
-### Build
- 
-Run the following commands to build:
- 
+
 ```sh
-su
-cd /etc/nixos
-nixos-generate-config
 git config --global user.name "myname"
 git config --global user.email "myname@gmail.com"
 git add .
