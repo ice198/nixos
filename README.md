@@ -73,59 +73,15 @@ swapon /dev/XXX2
 
 lsblk
 
+git clone https://github.com/ice198/nixos.git /mnt/etc/nixos
+
 nixos-generate-config --root /mnt  # Generate NixOS config files
-vim /mnt/etc/nixos/configuration.nix
-```
- 
-### Edit `configuration.nix`
- 
-```nix
-# Only the sections that need to be changed
-networking.hostName = "nixos";
- 
-time.timeZone = "Asia/Tokyo";
-
-fileSystems."/" = {
-  device = "/dev/disk/by-label/nixos";
-  fsType = "btrfs";
-  options = [ "subvol=@" "compress=zstd" "noatime" ];
-};
-
-fileSystems."/home" = {
-  device = "/dev/disk/by-label/nixos";
-  fsType = "btrfs";
-  options = [ "subvol=@home" "compress=zstd" "noatime" ];
-};
- 
-# Replace "name" with your username
-users.users.name = {
-    isNormalUser = true;
-    extraGroups = [ "wheel" ];
-    packages = with pkgs; [
-        tree
-    ];
-  };
- 
-services.displayManager.sddm = {
-    enable = true;
-    wayland.enable = true;
-};
- 
-programs.firefox.enable = true;
-programs.niri.enable = true;
- 
-environment.systemPackages = with pkgs; [
-    helix
-    wget
-    alacritty
-    git
-];
 ```
  
 ### Run the Installer
  
 ```sh
-nixos-install
+nixos-install --flake /mnt/etc/nixos#nixos
 ```
  
 When prompted with `New password:`, set a password for root.
@@ -135,67 +91,17 @@ nixos-enter --root /mnt -c 'passwd name'
 # Enter the password you want to set
 reboot
 ```
- 
----
- 
+
 ## 4. Customize
- 
 ```sh
-sudo rm -rf /etc/nixos
-sudo git clone https://github.com/ice198/nixos.git /etc/nixos
+niri msg outputs
 ```
- 
-### Edit `configuration.nix`
- 
-```nix
-# Replace "name" with your username
-users.users.name = {
-    isNormalUser = true;
-    extraGroups = [ "wheel" ];
-    packages = with pkgs; [
-      tree
-    ];
-    shell = pkgs.zsh;
-  };
-```
- 
-### Edit `flake.nix`
- 
-```nix
-# Replace "name" with your username
-users.name = { pkgs, ... }: {
-  imports = [ ./home.nix ];
-};
-```
- 
-### Edit `home.nix`
- 
-```nix
-# Replace "name" with your username
-home.username = "name";
-home.homeDirectory = "/home/name";
- 
-# Replace name and email with your own
-programs.git = {
-  enable = true;
-  settings = {
-    user = {
-      name = "name";
-      email = "name@gmail.com";
-    };
-    init.defaultBranch = "main";
-  };
-};
- 
-# Change "name" in the niri config below to your username
-spawn-at-startup "/home/name/.local/bin/eww-start"
- 
+``` 
 # Set your monitor resolution, refresh rate, and scale
-output "eDP-1" {
-  mode "1920x1080@120.030"
-  scale 2
-  transform "normal"
-  position x=1280 y=1
+output "HDMI-A-1" {
+    mode "3840x2160@120.000"
+    scale 1.5
+    position x=0 y=0
 }
 ```
  
