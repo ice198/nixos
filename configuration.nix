@@ -38,6 +38,16 @@
   hardware.bluetooth.enable = true;
   hardware.bluetooth.powerOnBoot = true;
 
+  # 仮想化サポートを有効化
+  virtualisation.libvirtd = {
+    enable = true;
+    qemu = {
+      package = pkgs.qemu_kvm;
+      #ovmf.enable = true; # UEFI ブート対応
+      swtpm.enable = true; # TPM エミュレーション（Windows 11等に必要）
+    };
+  };
+
   # Open port
   networking.firewall.allowedTCPPorts = [
     5173
@@ -173,6 +183,7 @@
     extraGroups = [
       "wheel"
       "docker"
+      "libvirtd" # test
     ];
     packages = with pkgs; [
       tree
@@ -243,6 +254,7 @@
     })
     google-chrome
     vscode
+    gnome-boxes
   ];
 
   programs.appimage = {
