@@ -12,41 +12,38 @@
     inputs.silentSDDM.nixosModules.default
   ];
 
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
-  boot.kernelParams = [
-    "quiet"
-    "loglevel=0"
-    "rd.udev.log_level=3"
-    "udev.log_priority=3"
-    "vt.global_cursor_default=0"
-    "rd.systemd.show_status=false"
-    "systemd.show_status=false"
-    "systemd.log_level=emerg"
-  ];
+  boot = {
+    kernelPackages = pkgs.linuxPackages_latest;
+    loader = {
+      systemd-boot.enable = true;
+      efi.canTouchEfiVariables = true;
+      timeout = 0;
+    };
+    kernelParams = [
+      "quiet"
+      "loglevel=0"
+      "rd.udev.log_level=3"
+      "udev.log_priority=3"
+      "vt.global_cursor_default=0"
+      "rd.systemd.show_status=false"
+      "systemd.show_status=false"
+      "systemd.log_level=emerg"
+    ];
+    consoleLogLevel = 0;
+    initrd.verbose = false;
+  };
+
   systemd.settings.Manager = {
     ShowStatus = "no";
     StatusUnitFormat = "none";
   };
-  boot.consoleLogLevel = 0;
-  boot.initrd.verbose = false;
-  boot.loader.timeout = 0;
 
   networking.hostName = "nixos";
   networking.networkmanager.enable = true;
 
   hardware.bluetooth.enable = true;
   hardware.bluetooth.powerOnBoot = true;
-
-  # 仮想化サポートを有効化
-  virtualisation.libvirtd = {
-    enable = true;
-    qemu = {
-      package = pkgs.qemu_kvm;
-      #ovmf.enable = true; # UEFI ブート対応
-      swtpm.enable = true; # TPM エミュレーション（Windows 11等に必要）
-    };
-  };
+  services.blueman.enable = true;
 
   # services.snapper = {
   #snapshotInterval = "daily";
@@ -72,25 +69,7 @@
     5173
     4321
     3000
-    3306
-    80
-    19999
   ];
-
-  # MariaDB
-  services.mysql = {
-    enable = true;
-    package = pkgs.mariadb;
-    ensureDatabases = [ "testdb" ];
-    ensureUsers = [
-      {
-        name = "testuser";
-        ensurePermissions = {
-          "testdb.*" = "ALL PRIVILEGES";
-        };
-      }
-    ];
-  };
 
   # Graphics
   hardware.graphics = {
@@ -191,9 +170,13 @@
   programs.hyprlock.enable = true;
 
   # Audio
+  security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
     pulse.enable = true;
+    jack.enable = true;
   };
 
   # User
@@ -201,8 +184,8 @@
     isNormalUser = true;
     extraGroups = [
       "wheel"
+      "networkmanager"
       "docker"
-      "libvirtd" # test
     ];
     packages = with pkgs; [
       tree
@@ -226,8 +209,8 @@
   # Apps
   nixpkgs.config.allowUnfree = true;
   documentation.nixos.enable = false; # hide NixOS documentation
-  programs.steam.enable = true;
-  programs.xwayland.enable = true; # for steam
+  #programs.steam.enable = true;
+  programs.xwayland.enable = true;
   services.gvfs.enable = true; # for nautilus
   environment.systemPackages = with pkgs; [
     inputs.awww.packages.${pkgs.stdenv.hostPlatform.system}.awww
@@ -262,6 +245,7 @@
     resources
     planify
     libreoffice-fresh
+    tor-browser
     (chromium.override {
       commandLineArgs = [
         "--enable-features=AcceleratedVideoEncoder,VaapiOnNvidiaGPUs,VaapiIgnoreDriverChecks,Vulkan,DefaultANGLEVulkan,VulkanFromANGLE"
@@ -272,8 +256,6 @@
       ];
     })
     google-chrome
-    vscode
-    gnome-boxes
   ];
 
   programs.appimage = {

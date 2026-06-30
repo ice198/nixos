@@ -89,9 +89,7 @@
     python3
     inkscape
     obsidian
-    godot
     go
-    drawio
     nodejs
     deno
     brave
@@ -628,15 +626,15 @@
   };
 
   # Hide icon
-  xdg = {
-    enable = true;
-    desktopEntries = {
-      btop = {
-        name = "btop";
-        noDisplay = true;
-      };
-    };
-  };
+  #xdg = {
+  #  enable = true;
+  #  desktopEntries = {
+  #    btop = {
+  #      name = "btop";
+  #      noDisplay = true;
+  #    };
+  #  };
+  #};
 
   # icon theme
   gtk = {
